@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, StyleProp, ViewStyle, Platform } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { colors } from '@/src/constants/colors';
@@ -25,7 +25,7 @@ function formatDate(date: Date): string {
   });
 }
 
-const DateInput: React.FC<DateInputProps> = ({
+function DateInput({
   label,
   value,
   onChange,
@@ -33,14 +33,10 @@ const DateInput: React.FC<DateInputProps> = ({
   maximumDate,
   minimumDate,
   style,
-}) => {
+}: DateInputProps): React.ReactElement {
   const [showPicker, setShowPicker] = useState(false);
 
-  const handlePress = () => {
-    setShowPicker(true);
-  };
-
-  const handleChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+  function handleChange(event: DateTimePickerEvent, selectedDate?: Date): void {
     // On Android, the picker closes automatically
     if (Platform.OS === 'android') {
       setShowPicker(false);
@@ -55,7 +51,7 @@ const DateInput: React.FC<DateInputProps> = ({
     } else if (event.type === 'dismissed') {
       setShowPicker(false);
     }
-  };
+  }
 
   const displayValue = value ? formatDate(value) : placeholder;
   const isPlaceholder = !value;
@@ -66,7 +62,7 @@ const DateInput: React.FC<DateInputProps> = ({
       <Pressable
         testID="date-input-field"
         style={styles.inputField}
-        onPress={handlePress}
+        onPress={() => setShowPicker(true)}
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityHint={isPlaceholder ? 'Tap to select a date' : `Current value: ${displayValue}`}
@@ -90,7 +86,7 @@ const DateInput: React.FC<DateInputProps> = ({
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

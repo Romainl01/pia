@@ -126,8 +126,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingVertical: 16,
   },
   title: {
     ...typography.titleH1,

@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetView, BottomSheetBackdrop, BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
 import { Avatar } from '@/src/components/Avatar';
 import { DateInput } from '@/src/components/DateInput';
 import { FrequencySelector, FrequencyOption } from '@/src/components/FrequencySelector';
@@ -15,11 +15,25 @@ interface AddFriendSheetProps {
   selectedContact: SelectedContact | null;
 }
 
+const SNAP_POINTS = ['70%'];
+
+function Backdrop(props: BottomSheetBackdropProps): React.ReactElement {
+  return (
+    <BottomSheetBackdrop
+      {...props}
+      disappearsOnIndex={-1}
+      appearsOnIndex={0}
+      opacity={0.5}
+      pressBehavior="close"
+    />
+  );
+}
+
 function AddFriendSheet({
   isOpen,
   onClose,
   selectedContact,
-}: AddFriendSheetProps) {
+}: AddFriendSheetProps): React.ReactElement {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const addFriend = useFriendsStore((state) => state.addFriend);
 
@@ -35,7 +49,7 @@ function AddFriendSheet({
       setLastCheckIn(null);
       setFrequency(null);
     }
-  }, [isOpen, selectedContact?.id]);
+  }, [isOpen, selectedContact]);
 
   // Control sheet visibility
   useEffect(() => {
@@ -49,9 +63,6 @@ function AddFriendSheet({
     }
   }, [isOpen, selectedContact]);
 
-  // Snap points for the bottom sheet (70% of screen height)
-  const snapPoints = useMemo(() => ['70%'], []);
-
   const isFormValid = birthday !== null && lastCheckIn !== null && frequency !== null;
 
   const handleSave = useCallback(() => {
@@ -60,26 +71,13 @@ function AddFriendSheet({
     addFriend({
       name: selectedContact.name,
       photoUrl: selectedContact.imageUri,
-      birthday: birthday!.toISOString().split('T')[0], // YYYY-MM-DD
+      birthday: birthday!.toISOString().split('T')[0],
       frequencyDays: frequency!,
-      lastContactAt: lastCheckIn!.toISOString().split('T')[0], // YYYY-MM-DD
+      lastContactAt: lastCheckIn!.toISOString().split('T')[0],
     });
 
     onClose();
   }, [selectedContact, birthday, lastCheckIn, frequency, isFormValid, addFriend, onClose]);
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-        pressBehavior="close"
-      />
-    ),
-    []
-  );
 
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
@@ -87,14 +85,13 @@ function AddFriendSheet({
     }
   }, [onClose]);
 
-  // Always render the BottomSheet to keep the ref stable
   return (
     <BottomSheet
       ref={bottomSheetRef}
       index={-1}
-      snapPoints={snapPoints}
+      snapPoints={SNAP_POINTS}
       onChange={handleSheetChanges}
-      backdropComponent={renderBackdrop}
+      backdropComponent={Backdrop}
       enablePanDownToClose
       backgroundStyle={styles.sheetBackground}
       handleIndicatorStyle={styles.handleIndicator}

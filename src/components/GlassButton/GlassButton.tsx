@@ -1,11 +1,4 @@
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-  StyleProp,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View, ViewStyle, StyleProp } from "react-native";
 import { GlassView } from "expo-glass-effect";
 import { colors } from "@/src/constants/colors";
 
@@ -22,46 +15,41 @@ interface GlassButtonProps {
  * Liquid Glass button component using iOS 26+ GlassView.
  * Supports both icon-only (circular) and text (pill) variants.
  */
-export function GlassButton({
+function GlassButton({
   onPress,
   label,
   icon,
   size = 40,
   style,
   testID,
-}: GlassButtonProps) {
+}: GlassButtonProps): React.ReactElement {
   const isIconOnly = !label && icon;
 
   return (
     <Pressable
       onPress={onPress}
       testID={testID}
-      style={({ pressed }) => [
-        viewStyles.pressable,
-        pressed && viewStyles.pressed,
-        style,
-      ]}
+      style={({ pressed }) => [pressed && styles.pressed, style]}
     >
       <GlassView
         isInteractive
         style={[
-          viewStyles.glass,
+          styles.glass,
           isIconOnly
             ? { width: size, height: size, borderRadius: size / 2 }
-            : viewStyles.pillShape,
+            : styles.pillShape,
         ]}
       >
-        <View style={viewStyles.content}>
+        <View style={styles.content}>
           {icon}
-          {label && <Text style={textStyles.label}>{label}</Text>}
+          {label && <Text style={styles.label}>{label}</Text>}
         </View>
       </GlassView>
     </Pressable>
   );
 }
 
-const viewStyles = StyleSheet.create({
-  pressable: {},
+const styles = StyleSheet.create({
   pressed: {
     opacity: 0.8,
   },
@@ -81,9 +69,6 @@ const viewStyles = StyleSheet.create({
     justifyContent: "center",
     height: 36,
   },
-});
-
-const textStyles = StyleSheet.create({
   label: {
     fontFamily: "Inter_500Medium",
     fontSize: 17,
@@ -92,3 +77,6 @@ const textStyles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+export { GlassButton };
+export type { GlassButtonProps };

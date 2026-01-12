@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Image, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '@/src/constants/colors';
 
@@ -28,12 +27,7 @@ function getInitials(name: string): string {
   return (first + last).toUpperCase();
 }
 
-const Avatar: React.FC<AvatarProps> = ({
-  name,
-  imageUri,
-  size = 80,
-  style,
-}) => {
+function Avatar({ name, imageUri, size = 80, style }: AvatarProps): React.ReactElement {
   const initials = getInitials(name);
   const borderRadius = size / 2;
 
@@ -42,13 +36,6 @@ const Avatar: React.FC<AvatarProps> = ({
     height: size,
     borderRadius,
     overflow: 'hidden',
-  };
-
-  const initialsContainerStyle: ViewStyle = {
-    ...containerStyle,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
   };
 
   return (
@@ -66,25 +53,28 @@ const Avatar: React.FC<AvatarProps> = ({
           resizeMode="cover"
         />
       ) : (
-        <View testID="avatar-initials" style={initialsContainerStyle}>
-          <Text
-            style={[
-              styles.initialsText,
-              { fontSize: size * 0.4 },
-            ]}
-          >
+        <View
+          testID="avatar-initials"
+          style={[containerStyle, styles.initialsContainer]}
+        >
+          <Text style={[styles.initialsText, { fontSize: size * 0.4 }]}>
             {initials}
           </Text>
         </View>
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  initialsContainer: {
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   initialsText: {
     color: colors.neutralWhite,

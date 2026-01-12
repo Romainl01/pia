@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, Pressable, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { colors } from '@/src/constants/colors';
 
@@ -11,25 +10,19 @@ interface FrequencySelectorProps {
   style?: StyleProp<ViewStyle>;
 }
 
-interface FrequencyConfig {
-  value: FrequencyOption;
-  label: string;
-  accessibilityLabel: string;
-}
-
-const FREQUENCY_OPTIONS: FrequencyConfig[] = [
-  { value: 7, label: 'Weekly', accessibilityLabel: 'Check in weekly' },
-  { value: 14, label: '2 Weeks', accessibilityLabel: 'Check in every 2 weeks' },
-  { value: 30, label: 'Monthly', accessibilityLabel: 'Check in monthly' },
-  { value: 90, label: 'Quarterly', accessibilityLabel: 'Check in quarterly' },
+const FREQUENCY_OPTIONS = [
+  { value: 7 as const, label: 'Weekly', accessibilityLabel: 'Check in weekly' },
+  { value: 14 as const, label: '2 Weeks', accessibilityLabel: 'Check in every 2 weeks' },
+  { value: 30 as const, label: 'Monthly', accessibilityLabel: 'Check in monthly' },
+  { value: 90 as const, label: 'Quarterly', accessibilityLabel: 'Check in quarterly' },
 ];
 
-const FrequencySelector: React.FC<FrequencySelectorProps> = ({
+function FrequencySelector({
   value,
   onChange,
   label,
   style,
-}) => {
+}: FrequencySelectorProps): React.ReactElement {
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -40,21 +33,13 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
             <Pressable
               key={option.value}
               testID={`frequency-pill-${option.value}`}
-              style={[
-                styles.pill,
-                isSelected && styles.pillSelected,
-              ]}
+              style={[styles.pill, isSelected && styles.pillSelected]}
               onPress={() => onChange(option.value)}
               accessibilityRole="button"
               accessibilityLabel={option.accessibilityLabel}
               accessibilityState={{ selected: isSelected }}
             >
-              <Text
-                style={[
-                  styles.pillText,
-                  isSelected && styles.pillTextSelected,
-                ]}
-              >
+              <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
                 {option.label}
               </Text>
             </Pressable>
@@ -63,7 +48,7 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

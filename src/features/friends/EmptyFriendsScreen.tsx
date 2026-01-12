@@ -68,8 +68,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingVertical: 16,
   },
   title: {
     ...typography.titleH1,
@@ -78,7 +77,6 @@ const styles = StyleSheet.create({
   heroContainer: {
     flex: 1,
     justifyContent: "center",
-    // Offset slightly up from true center to match Figma's visual weight
     paddingBottom: 120,
   },
   hero: {

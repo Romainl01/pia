@@ -1,1 +1,0 @@
-export { GlassTabBar } from "./GlassTabBar";

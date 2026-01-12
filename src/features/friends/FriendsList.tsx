@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { FriendCard } from './FriendCard';
 import { useFriendsStore, Friend } from '@/src/stores/friendsStore';
@@ -10,8 +10,8 @@ interface FriendsListProps {
 }
 
 /**
- * Calculate days remaining until next check-in
- * Negative values mean overdue
+ * Calculate days remaining until next check-in.
+ * Negative values mean overdue.
  */
 function getDaysRemaining(friend: Friend): number {
   const lastContact = new Date(friend.lastContactAt);
@@ -27,16 +27,16 @@ function getDaysRemaining(friend: Friend): number {
   return friend.frequencyDays - daysSinceContact;
 }
 
-const FriendsList: React.FC<FriendsListProps> = ({ onFriendPress }) => {
+function Separator(): React.ReactElement {
+  return <View style={styles.separator} />;
+}
+
+function FriendsList({ onFriendPress }: FriendsListProps): React.ReactElement {
   const friends = useFriendsStore((state) => state.friends);
 
   // Sort friends by urgency (most urgent/overdue first)
   const sortedFriends = useMemo(() => {
-    return [...friends].sort((a, b) => {
-      const daysA = getDaysRemaining(a);
-      const daysB = getDaysRemaining(b);
-      return daysA - daysB; // Lower (more urgent) first
-    });
+    return [...friends].sort((a, b) => getDaysRemaining(a) - getDaysRemaining(b));
   }, [friends]);
 
   if (friends.length === 0) {
@@ -53,17 +53,14 @@ const FriendsList: React.FC<FriendsListProps> = ({ onFriendPress }) => {
       data={sortedFriends}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <FriendCard
-          friend={item}
-          onPress={() => onFriendPress?.(item)}
-        />
+        <FriendCard friend={item} onPress={() => onFriendPress?.(item)} />
       )}
       contentContainerStyle={styles.listContent}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      ItemSeparatorComponent={Separator}
       showsVerticalScrollIndicator={false}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   listContent: {

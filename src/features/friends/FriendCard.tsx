@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Avatar } from '@/src/components/Avatar';
 import { Friend } from '@/src/stores/friendsStore';
@@ -12,20 +11,14 @@ interface FriendCardProps {
 
 type CheckInStatus = 'on-track' | 'due-soon' | 'due-today' | 'overdue';
 
-interface CheckInInfo {
-  status: CheckInStatus;
-  label: string;
-  daysRemaining: number;
-}
-
 /**
- * Calculates the check-in status based on last contact and frequency
+ * Calculates days remaining until next check-in.
+ * Negative values mean overdue.
  */
-function getCheckInInfo(lastContactAt: string, frequencyDays: number): CheckInInfo {
+function getDaysRemaining(lastContactAt: string, frequencyDays: number): number {
   const lastContact = new Date(lastContactAt);
   const today = new Date();
 
-  // Reset time to compare dates only
   lastContact.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
 
@@ -33,64 +26,45 @@ function getCheckInInfo(lastContactAt: string, frequencyDays: number): CheckInIn
     (today.getTime() - lastContact.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  const daysRemaining = frequencyDays - daysSinceContact;
-
-  if (daysRemaining < 0) {
-    return {
-      status: 'overdue',
-      label: `${Math.abs(daysRemaining)} days overdue`,
-      daysRemaining,
-    };
-  }
-
-  if (daysRemaining === 0) {
-    return {
-      status: 'due-today',
-      label: 'Check in today',
-      daysRemaining,
-    };
-  }
-
-  if (daysRemaining <= 3) {
-    return {
-      status: 'due-soon',
-      label: `${daysRemaining} days`,
-      daysRemaining,
-    };
-  }
-
-  return {
-    status: 'on-track',
-    label: `${daysRemaining} days`,
-    daysRemaining,
-  };
+  return frequencyDays - daysSinceContact;
 }
 
-/**
- * Get the color for the status indicator
- */
+function getCheckInStatus(daysRemaining: number): CheckInStatus {
+  if (daysRemaining < 0) return 'overdue';
+  if (daysRemaining === 0) return 'due-today';
+  if (daysRemaining <= 3) return 'due-soon';
+  return 'on-track';
+}
+
+function getStatusLabel(daysRemaining: number, status: CheckInStatus): string {
+  if (status === 'overdue') return `${Math.abs(daysRemaining)} days overdue`;
+  if (status === 'due-today') return 'Check in today';
+  return `${daysRemaining} days`;
+}
+
 function getStatusColor(status: CheckInStatus): string {
   switch (status) {
     case 'overdue':
       return colors.feedbackError;
     case 'due-today':
     case 'due-soon':
-      return colors.primary; // Orange for attention
+      return colors.primary;
     case 'on-track':
-    default:
       return colors.feedbackSuccess;
   }
 }
 
-const FriendCard: React.FC<FriendCardProps> = ({ friend, onPress }) => {
-  const checkInInfo = getCheckInInfo(friend.lastContactAt, friend.frequencyDays);
-  const statusColor = getStatusColor(checkInInfo.status);
+function FriendCard({ friend, onPress }: FriendCardProps): React.ReactElement {
+  const daysRemaining = getDaysRemaining(friend.lastContactAt, friend.frequencyDays);
+  const status = getCheckInStatus(daysRemaining);
+  const statusLabel = getStatusLabel(daysRemaining, status);
+  const statusColor = getStatusColor(status);
 
   return (
     <Pressable
       style={styles.container}
       onPress={onPress}
-      accessibilityLabel={`${friend.name}, ${checkInInfo.label}`}
+      accessibilityLabel={`${friend.name}, ${statusLabel}`}
       accessibilityRole="button"
     >
       <Avatar
@@ -106,13 +80,13 @@ const FriendCard: React.FC<FriendCardProps> = ({ friend, onPress }) => {
         <View style={styles.statusContainer}>
           <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
           <Text style={[styles.statusText, { color: statusColor }]}>
-            {checkInInfo.label}
+            {statusLabel}
           </Text>
         </View>
       </View>
     </Pressable>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -28,8 +28,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingVertical: 16,
   },
   title: {
     ...typography.titleH1,
