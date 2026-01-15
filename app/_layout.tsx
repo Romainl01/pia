@@ -87,7 +87,7 @@ export default function RootLayout(): React.ReactElement | null {
               presentation: 'formSheet',
               sheetAllowedDetents: 'fitToContents',
               sheetGrabberVisible: true,
-              sheetCornerRadius: 34,
+              sheetCornerRadius: 47,
               headerShown: false,
               contentStyle: { backgroundColor: 'transparent' },
             }}

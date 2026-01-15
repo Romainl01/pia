@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import * as DropdownMenu from 'zeego/dropdown-menu';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,24 +17,6 @@ import { typography } from '@/src/constants/typography';
 import type { ContactBirthday } from '@/src/hooks/useContacts';
 
 type FrequencyOption = 7 | 14 | 30 | 90 | null;
-
-// Sheet layout constants
-const SHEET_MARGIN = 8;
-
-/**
- * Estimates iPhone screen corner radius based on screen dimensions.
- * Modern iPhones (12+) have ~47px corners, Pro models ~55px.
- */
-function getDeviceCornerRadius(screenWidth: number, screenHeight: number): number {
-  const screenSize = Math.max(screenWidth, screenHeight);
-
-  // Pro Max / Plus models (larger screens)
-  if (screenSize >= 926) return 55;
-  // Pro / Standard models
-  if (screenSize >= 844) return 47;
-  // Smaller models (mini, SE)
-  return 44;
-}
 
 const FREQUENCY_LABELS: Record<number, string> = {
   7: 'Weekly',
@@ -104,12 +86,6 @@ function birthdayToDate(birthday: ContactBirthday): Date {
 
 export default function AddFriendScreen(): React.ReactElement {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-
-  // Calculate corner radius to maintain consistent margin from device edges
-  const deviceCornerRadius = getDeviceCornerRadius(screenWidth, screenHeight);
-  const sheetCornerRadius = deviceCornerRadius - SHEET_MARGIN;
-
   const pendingContact = useFriendsStore((state) => state.pendingContact);
   const setPendingContact = useFriendsStore((state) => state.setPendingContact);
   const addFriend = useFriendsStore((state) => state.addFriend);
@@ -208,16 +184,7 @@ export default function AddFriendScreen(): React.ReactElement {
 
   if (!pendingContact) {
     return (
-      <View
-        style={[
-          styles.container,
-          {
-            margin: SHEET_MARGIN,
-            borderBottomLeftRadius: sheetCornerRadius,
-            borderBottomRightRadius: sheetCornerRadius,
-          },
-        ]}
-      >
+      <View style={styles.container}>
         <Text style={styles.emptyText}>No contact selected</Text>
       </View>
     );
@@ -228,17 +195,7 @@ export default function AddFriendScreen(): React.ReactElement {
   const frequencyDisplayValue = frequency ? FREQUENCY_LABELS[frequency] : 'None';
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          margin: SHEET_MARGIN,
-          borderBottomLeftRadius: sheetCornerRadius,
-          borderBottomRightRadius: sheetCornerRadius,
-          paddingBottom: Math.max(insets.bottom, 16),
-        },
-      ]}
-    >
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
       {/* Header with close and save buttons */}
       <View style={styles.header}>
         <View style={styles.headerSpacer} />
@@ -384,11 +341,7 @@ export default function AddFriendScreen(): React.ReactElement {
 
 const styles = StyleSheet.create({
   container: {
-    // Background needed for border radius to be visible
-    // Glass shows through the margins around this card
-    backgroundColor: colors.surfaceLight,
-    borderCurve: 'continuous',
-    overflow: 'hidden',
+    // Sheet corner radius is controlled in _layout.tsx
   },
   header: {
     flexDirection: 'row',
