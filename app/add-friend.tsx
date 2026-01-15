@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import * as DropdownMenu from 'zeego/dropdown-menu';
+import { useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, Platform, ActionSheetIOS } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlassView } from 'expo-glass-effect';
@@ -112,11 +111,6 @@ export default function AddFriendScreen(): React.ReactElement {
 
   const isFormValid = birthday !== null && lastCatchUp !== null && frequency !== null;
 
-  const handleClose = useCallback(() => {
-    setPendingContact(null);
-    router.back();
-  }, [setPendingContact]);
-
   const handleSave = useCallback(async () => {
     if (!pendingContact || !isFormValid) return;
 
@@ -182,9 +176,39 @@ export default function AddFriendScreen(): React.ReactElement {
     setShowLastCatchUpPicker(false);
   }, []);
 
+  const handleFrequencyPress = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly', 'None'],
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          switch (buttonIndex) {
+            case 1:
+              setFrequency(7);
+              break;
+            case 2:
+              setFrequency(14);
+              break;
+            case 3:
+              setFrequency(30);
+              break;
+            case 4:
+              setFrequency(90);
+              break;
+            case 5:
+              setFrequency(null);
+              break;
+          }
+        }
+      );
+    }
+  }, []);
+
   if (!pendingContact) {
     return (
-      <View style={styles.container}>
+      <View>
         <Text style={styles.emptyText}>No contact selected</Text>
       </View>
     );
@@ -195,7 +219,7 @@ export default function AddFriendScreen(): React.ReactElement {
   const frequencyDisplayValue = frequency ? FREQUENCY_LABELS[frequency] : 'None';
 
   return (
-    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+    <View style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
       {/* Header with close and save buttons */}
       <View style={styles.header}>
         <View style={styles.headerSpacer} />
@@ -249,64 +273,14 @@ export default function AddFriendScreen(): React.ReactElement {
           testID="last-catchup-row"
         />
 
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
-            <SettingsRow
-              icon="arrow.trianglehead.2.clockwise"
-              label="Frequency"
-              value={frequencyDisplayValue}
-              chevronType="dropdown"
-              testID="frequency-row"
-            />
-          </DropdownMenu.Trigger>
-
-          <DropdownMenu.Content>
-            <DropdownMenu.CheckboxItem
-              key="weekly"
-              value={frequency === 7 ? 'on' : 'off'}
-              onValueChange={() => setFrequency(7)}
-            >
-              <DropdownMenu.ItemIndicator />
-              <DropdownMenu.ItemTitle>Weekly</DropdownMenu.ItemTitle>
-            </DropdownMenu.CheckboxItem>
-
-            <DropdownMenu.CheckboxItem
-              key="biweekly"
-              value={frequency === 14 ? 'on' : 'off'}
-              onValueChange={() => setFrequency(14)}
-            >
-              <DropdownMenu.ItemIndicator />
-              <DropdownMenu.ItemTitle>Bi-weekly</DropdownMenu.ItemTitle>
-            </DropdownMenu.CheckboxItem>
-
-            <DropdownMenu.CheckboxItem
-              key="monthly"
-              value={frequency === 30 ? 'on' : 'off'}
-              onValueChange={() => setFrequency(30)}
-            >
-              <DropdownMenu.ItemIndicator />
-              <DropdownMenu.ItemTitle>Monthly</DropdownMenu.ItemTitle>
-            </DropdownMenu.CheckboxItem>
-
-            <DropdownMenu.CheckboxItem
-              key="quarterly"
-              value={frequency === 90 ? 'on' : 'off'}
-              onValueChange={() => setFrequency(90)}
-            >
-              <DropdownMenu.ItemIndicator />
-              <DropdownMenu.ItemTitle>Quarterly</DropdownMenu.ItemTitle>
-            </DropdownMenu.CheckboxItem>
-
-            <DropdownMenu.CheckboxItem
-              key="none"
-              value={frequency === null ? 'on' : 'off'}
-              onValueChange={() => setFrequency(null)}
-            >
-              <DropdownMenu.ItemIndicator />
-              <DropdownMenu.ItemTitle>None</DropdownMenu.ItemTitle>
-            </DropdownMenu.CheckboxItem>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+        <SettingsRow
+          icon="arrow.trianglehead.2.clockwise"
+          label="Frequency"
+          value={frequencyDisplayValue}
+          onPress={handleFrequencyPress}
+          chevronType="dropdown"
+          testID="frequency-row"
+        />
       </View>
 
       {/* Date picker modals - inline calendar display */}
@@ -340,9 +314,6 @@ export default function AddFriendScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    // Sheet corner radius is controlled in _layout.tsx
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
