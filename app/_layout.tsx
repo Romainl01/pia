@@ -89,6 +89,7 @@ export default function RootLayout(): React.ReactElement | null {
               sheetGrabberVisible: true,
               sheetCornerRadius: 34,
               headerShown: false,
+              contentStyle: { backgroundColor: 'transparent' },
             }}
           />
         </Stack>

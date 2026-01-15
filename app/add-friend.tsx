@@ -320,7 +320,7 @@ export default function AddFriendScreen(): React.ReactElement {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.surfaceLight,
+    // Transparent background allows iOS 26 liquid glass effect
   },
   header: {
     flexDirection: 'row',
