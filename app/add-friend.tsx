@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Platform, ActionSheetIOS } from 'react-native';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlassView } from 'expo-glass-effect';
@@ -8,12 +8,16 @@ import * as Haptics from 'expo-haptics';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Avatar } from '@/src/components/Avatar';
 import { SettingsRow } from '@/src/components/SettingsRow';
+import { GlassMenu, type AnchorPosition } from '@/src/components/GlassMenu';
 import { useFriendsStore } from '@/src/stores/friendsStore';
 import { useNotificationStateStore } from '@/src/stores/notificationStateStore';
-import { useNotificationPermission } from '@/src/hooks/useNotificationPermission';
 import { colors } from '@/src/constants/colors';
 import { typography } from '@/src/constants/typography';
+import { getDeviceCornerRadius, getConcentricPadding } from '@/src/utils';
 import type { ContactBirthday } from '@/src/hooks/useContacts';
+
+const BUTTON_SIZE = 44;
+const BUTTON_RADIUS = BUTTON_SIZE / 2;
 
 type FrequencyOption = 7 | 14 | 30 | 90 | null;
 
@@ -23,6 +27,14 @@ const FREQUENCY_LABELS: Record<number, string> = {
   30: 'Monthly',
   90: 'Quarterly',
 };
+
+const FREQUENCY_MENU_ITEMS = [
+  { label: 'Weekly', value: 7 as FrequencyOption },
+  { label: 'Bi-weekly', value: 14 as FrequencyOption },
+  { label: 'Monthly', value: 30 as FrequencyOption },
+  { label: 'Quarterly', value: 90 as FrequencyOption },
+  { label: 'None', value: null as FrequencyOption },
+];
 
 /**
  * Formats a birthday for display
@@ -85,13 +97,17 @@ function birthdayToDate(birthday: ContactBirthday): Date {
 
 export default function AddFriendScreen(): React.ReactElement {
   const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
   const pendingContact = useFriendsStore((state) => state.pendingContact);
+
+  // Calculate concentric padding for the save button
+  const sheetCornerRadius = getDeviceCornerRadius(width, height);
+  const buttonPadding = getConcentricPadding(sheetCornerRadius, BUTTON_RADIUS);
   const setPendingContact = useFriendsStore((state) => state.setPendingContact);
   const addFriend = useFriendsStore((state) => state.addFriend);
   const friendsCount = useFriendsStore((state) => state.friends.length);
 
-  const { hasRequestedPermission, setHasRequestedPermission } = useNotificationStateStore();
-  const { requestPermission } = useNotificationPermission();
+  const { hasRequestedPermission, setHasRequestedPermission, setPendingPermissionRequest } = useNotificationStateStore();
 
   // Form state
   const [birthday, setBirthday] = useState<Date | null>(null);
@@ -102,6 +118,11 @@ export default function AddFriendScreen(): React.ReactElement {
   const [showBirthdayPicker, setShowBirthdayPicker] = useState(false);
   const [showLastCatchUpPicker, setShowLastCatchUpPicker] = useState(false);
 
+  // Frequency menu state
+  const frequencyRowRef = useRef<View>(null);
+  const [showFrequencyMenu, setShowFrequencyMenu] = useState(false);
+  const [frequencyMenuAnchor, setFrequencyMenuAnchor] = useState<AnchorPosition | null>(null);
+
   // Pre-fill birthday from contact if available
   useEffect(() => {
     if (pendingContact?.birthday) {
@@ -111,7 +132,7 @@ export default function AddFriendScreen(): React.ReactElement {
 
   const isFormValid = birthday !== null && lastCatchUp !== null && frequency !== null;
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(() => {
     if (!pendingContact || !isFormValid) return;
 
     // Check if this is the first friend (before adding)
@@ -136,10 +157,10 @@ export default function AddFriendScreen(): React.ReactElement {
       lastContactAt: lastCatchUp!.toISOString().split('T')[0],
     });
 
-    // Request notification permission after first friend is added
+    // Schedule notification permission request after sheet closes (first friend only)
     if (isFirstFriend && !hasRequestedPermission) {
       setHasRequestedPermission(true);
-      await requestPermission();
+      setPendingPermissionRequest(true);
     }
 
     setPendingContact(null);
@@ -155,7 +176,7 @@ export default function AddFriendScreen(): React.ReactElement {
     friendsCount,
     hasRequestedPermission,
     setHasRequestedPermission,
-    requestPermission,
+    setPendingPermissionRequest,
   ]);
 
   const handleBirthdayConfirm = useCallback((selectedDate: Date) => {
@@ -177,33 +198,14 @@ export default function AddFriendScreen(): React.ReactElement {
   }, []);
 
   const handleFrequencyPress = useCallback(() => {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ['Cancel', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly', 'None'],
-          cancelButtonIndex: 0,
-        },
-        (buttonIndex) => {
-          switch (buttonIndex) {
-            case 1:
-              setFrequency(7);
-              break;
-            case 2:
-              setFrequency(14);
-              break;
-            case 3:
-              setFrequency(30);
-              break;
-            case 4:
-              setFrequency(90);
-              break;
-            case 5:
-              setFrequency(null);
-              break;
-          }
-        }
-      );
-    }
+    frequencyRowRef.current?.measureInWindow((x, y, width, height) => {
+      setFrequencyMenuAnchor({ x, y, width, height });
+      setShowFrequencyMenu(true);
+    });
+  }, []);
+
+  const handleFrequencySelect = useCallback((value: FrequencyOption) => {
+    setFrequency(value);
   }, []);
 
   if (!pendingContact) {
@@ -220,8 +222,8 @@ export default function AddFriendScreen(): React.ReactElement {
 
   return (
     <View style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
-      {/* Header with close and save buttons */}
-      <View style={styles.header}>
+      {/* Header with save button - positioned concentrically with sheet corner */}
+      <View style={[styles.header, { paddingTop: buttonPadding, paddingRight: buttonPadding }]}>
         <View style={styles.headerSpacer} />
         <Pressable
           onPress={handleSave}
@@ -274,6 +276,7 @@ export default function AddFriendScreen(): React.ReactElement {
         />
 
         <SettingsRow
+          ref={frequencyRowRef}
           icon="arrow.trianglehead.2.clockwise"
           label="Frequency"
           value={frequencyDisplayValue}
@@ -309,6 +312,17 @@ export default function AddFriendScreen(): React.ReactElement {
           onCancel={handleLastCatchUpCancel}
         />
       )}
+
+      {/* Frequency selection menu */}
+      <GlassMenu
+        visible={showFrequencyMenu}
+        onClose={() => setShowFrequencyMenu(false)}
+        items={FREQUENCY_MENU_ITEMS}
+        selectedValue={frequency}
+        onSelect={handleFrequencySelect}
+        anchorPosition={frequencyMenuAnchor}
+        testID="frequency-menu"
+      />
     </View>
   );
 }
@@ -318,19 +332,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingLeft: 16,
   },
   headerSpacer: {
-    width: 36,
+    width: BUTTON_SIZE,
   },
   saveButton: {
     zIndex: 1,
   },
   glassButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_RADIUS,
     justifyContent: 'center',
     alignItems: 'center',
   },

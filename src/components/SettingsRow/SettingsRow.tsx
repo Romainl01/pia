@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import { SymbolView } from 'expo-symbols';
 import * as Haptics from 'expo-haptics';
@@ -16,14 +17,17 @@ interface SettingsRowProps {
  * Bordered settings row matching the Figma design.
  * Used in the Add Friend sheet for Birthday, Last catch-up, and Frequency.
  */
-function SettingsRow({
-  icon,
-  label,
-  value,
-  onPress,
-  chevronType = 'expand',
-  testID,
-}: SettingsRowProps): React.ReactElement {
+const SettingsRow = forwardRef<View, SettingsRowProps>(function SettingsRow(
+  {
+    icon,
+    label,
+    value,
+    onPress,
+    chevronType = 'expand',
+    testID,
+  },
+  ref
+) {
   const handlePress = () => {
     Haptics.selectionAsync();
     onPress?.();
@@ -33,6 +37,7 @@ function SettingsRow({
 
   return (
     <Pressable
+      ref={ref}
       onPress={handlePress}
       testID={testID}
       accessibilityRole="button"
@@ -58,7 +63,7 @@ function SettingsRow({
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

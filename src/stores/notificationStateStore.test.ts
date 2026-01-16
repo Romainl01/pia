@@ -7,6 +7,7 @@ describe('notificationStateStore', () => {
       lastBirthdayNotificationDate: null,
       lastCatchUpNotificationDates: {},
       hasRequestedPermission: false,
+      pendingPermissionRequest: false,
     });
   });
 
@@ -24,6 +25,11 @@ describe('notificationStateStore', () => {
     it('should start with hasRequestedPermission as false', () => {
       const { hasRequestedPermission } = useNotificationStateStore.getState();
       expect(hasRequestedPermission).toBe(false);
+    });
+
+    it('should start with pendingPermissionRequest as false', () => {
+      const { pendingPermissionRequest } = useNotificationStateStore.getState();
+      expect(pendingPermissionRequest).toBe(false);
     });
   });
 
@@ -130,6 +136,27 @@ describe('notificationStateStore', () => {
     });
   });
 
+  describe('setPendingPermissionRequest', () => {
+    it('should set pendingPermissionRequest to true', () => {
+      const { setPendingPermissionRequest } = useNotificationStateStore.getState();
+
+      setPendingPermissionRequest(true);
+
+      const { pendingPermissionRequest } = useNotificationStateStore.getState();
+      expect(pendingPermissionRequest).toBe(true);
+    });
+
+    it('should set pendingPermissionRequest to false', () => {
+      const { setPendingPermissionRequest } = useNotificationStateStore.getState();
+
+      setPendingPermissionRequest(true);
+      setPendingPermissionRequest(false);
+
+      const { pendingPermissionRequest } = useNotificationStateStore.getState();
+      expect(pendingPermissionRequest).toBe(false);
+    });
+  });
+
   describe('shouldSendBirthdayNotification', () => {
     beforeEach(() => {
       jest.useFakeTimers();
@@ -225,6 +252,7 @@ describe('notificationStateStore', () => {
         setLastBirthdayNotificationDate,
         setLastCatchUpNotificationDate,
         setHasRequestedPermission,
+        setPendingPermissionRequest,
         reset,
       } = useNotificationStateStore.getState();
 
@@ -232,6 +260,7 @@ describe('notificationStateStore', () => {
       setLastBirthdayNotificationDate('2024-06-15');
       setLastCatchUpNotificationDate('friend-1', '2024-06-15');
       setHasRequestedPermission(true);
+      setPendingPermissionRequest(true);
 
       // Reset
       reset();
@@ -241,6 +270,7 @@ describe('notificationStateStore', () => {
       expect(state.lastBirthdayNotificationDate).toBeNull();
       expect(state.lastCatchUpNotificationDates).toEqual({});
       expect(state.hasRequestedPermission).toBe(false);
+      expect(state.pendingPermissionRequest).toBe(false);
     });
   });
 });
