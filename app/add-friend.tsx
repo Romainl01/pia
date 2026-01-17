@@ -16,7 +16,6 @@ import { typography } from '@/src/constants/typography';
 import type { ContactBirthday } from '@/src/hooks/useContacts';
 
 const BUTTON_SIZE = 44;
-const BUTTON_RADIUS = BUTTON_SIZE / 2;
 
 type FrequencyOption = 7 | 14 | 30 | 90 | null;
 
@@ -162,7 +161,6 @@ export default function AddFriendScreen(): React.ReactElement {
     birthday,
     lastCatchUp,
     frequency,
-    isFormValid,
     addFriend,
     setPendingContact,
     friendsCount,
@@ -252,6 +250,7 @@ export default function AddFriendScreen(): React.ReactElement {
           value={birthdayDisplayValue}
           onPress={() => setShowBirthdayPicker(true)}
           chevronType="expand"
+          hasValue={birthday !== null || pendingContact.birthday !== null}
           testID="birthday-row"
         />
 
@@ -261,6 +260,7 @@ export default function AddFriendScreen(): React.ReactElement {
           value={lastCatchUpDisplayValue}
           onPress={() => setShowLastCatchUpPicker(true)}
           chevronType="expand"
+          hasValue={lastCatchUp !== null}
           testID="last-catchup-row"
         />
 
@@ -286,31 +286,45 @@ export default function AddFriendScreen(): React.ReactElement {
       </View>
 
       {/* Date picker modals - inline calendar display */}
-      {showBirthdayPicker && (
-        <DateTimePickerModal
-          testID="birthday-picker"
-          isVisible={showBirthdayPicker}
-          mode="date"
-          display="inline"
-          date={birthday ?? getDefaultBirthdayDate()}
-          maximumDate={new Date()}
-          onConfirm={handleBirthdayConfirm}
-          onCancel={handleBirthdayCancel}
-        />
-      )}
+      <DateTimePickerModal
+        testID="birthday-picker"
+        isVisible={showBirthdayPicker}
+        mode="date"
+        display="inline"
+        date={birthday ?? getDefaultBirthdayDate()}
+        maximumDate={new Date()}
+        onConfirm={handleBirthdayConfirm}
+        onCancel={handleBirthdayCancel}
+        accentColor={colors.primary}
+        buttonTextColorIOS={colors.primary}
+        modalStyleIOS={styles.datePickerModal}
+        customConfirmButtonIOS={({ onPress, label }) => (
+          <Pressable onPress={onPress} style={styles.confirmButton}>
+            <Text style={styles.confirmButtonText}>{label}</Text>
+          </Pressable>
+        )}
+        customCancelButtonIOS={() => null}
+      />
 
-      {showLastCatchUpPicker && (
-        <DateTimePickerModal
-          testID="last-catchup-picker"
-          isVisible={showLastCatchUpPicker}
-          mode="date"
-          display="inline"
-          date={lastCatchUp ?? new Date()}
-          maximumDate={new Date()}
-          onConfirm={handleLastCatchUpConfirm}
-          onCancel={handleLastCatchUpCancel}
-        />
-      )}
+      <DateTimePickerModal
+        testID="last-catchup-picker"
+        isVisible={showLastCatchUpPicker}
+        mode="date"
+        display="inline"
+        date={lastCatchUp ?? new Date()}
+        maximumDate={new Date()}
+        onConfirm={handleLastCatchUpConfirm}
+        onCancel={handleLastCatchUpCancel}
+        accentColor={colors.primary}
+        buttonTextColorIOS={colors.primary}
+        modalStyleIOS={styles.datePickerModal}
+        customConfirmButtonIOS={({ onPress, label }) => (
+          <Pressable onPress={onPress} style={styles.confirmButton}>
+            <Text style={styles.confirmButtonText}>{label}</Text>
+          </Pressable>
+        )}
+        customCancelButtonIOS={() => null}
+      />
     </View>
   );
 }
@@ -331,7 +345,7 @@ const styles = StyleSheet.create({
   glassButton: {
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
-    borderRadius: BUTTON_RADIUS,
+    borderRadius: BUTTON_SIZE / 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -364,5 +378,19 @@ const styles = StyleSheet.create({
     color: colors.neutralGray,
     textAlign: 'center',
     marginTop: 100,
+  },
+  datePickerModal: {
+    marginBottom: 40,
+  },
+  confirmButton: {
+    padding: 16,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: colors.neutralGray200,
+  },
+  confirmButtonText: {
+    color: colors.primary,
+    fontSize: 20,
+    fontWeight: '600',
   },
 });

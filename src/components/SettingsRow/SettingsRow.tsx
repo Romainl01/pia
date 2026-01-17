@@ -10,6 +10,8 @@ interface SettingsRowProps {
   value: string;
   onPress?: () => void;
   chevronType?: 'expand' | 'dropdown';
+  /** When true and chevronType is 'expand', hides the '+' icon */
+  hasValue?: boolean;
   testID?: string;
 }
 
@@ -24,6 +26,7 @@ const SettingsRow = forwardRef<View, SettingsRowProps>(function SettingsRow(
     value,
     onPress,
     chevronType = 'expand',
+    hasValue = false,
     testID,
   },
   ref
@@ -33,6 +36,9 @@ const SettingsRow = forwardRef<View, SettingsRowProps>(function SettingsRow(
     onPress?.();
   };
 
+  // For 'expand' type: show '+' only when no value, hide when value exists
+  // For 'dropdown' type: always show the up/down chevron
+  const showChevron = chevronType === 'dropdown' || !hasValue;
   const chevronIcon = chevronType === 'dropdown' ? 'chevron.up.chevron.down' : 'plus';
 
   return (
@@ -54,11 +60,13 @@ const SettingsRow = forwardRef<View, SettingsRowProps>(function SettingsRow(
         </View>
         <View style={styles.rightSection}>
           <Text style={styles.value}>{value}</Text>
-          <SymbolView
-            name={chevronIcon}
-            size={12}
-            tintColor={colors.neutralDark}
-          />
+          {showChevron && (
+            <SymbolView
+              name={chevronIcon}
+              size={12}
+              tintColor={colors.neutralDark}
+            />
+          )}
         </View>
       </View>
     </Pressable>
