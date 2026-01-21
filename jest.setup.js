@@ -69,6 +69,20 @@ jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock")
 );
 
+// Mock expo-blur - BlurView renders as a regular View in tests
+jest.mock("expo-blur", () => {
+  const { View } = require("react-native");
+  const React = require("react");
+  return {
+    BlurView: ({ children, style, ...props }) =>
+      React.createElement(
+        View,
+        { style, testID: "blur-view", ...props },
+        children
+      ),
+  };
+});
+
 // Mock expo-haptics
 jest.mock("expo-haptics", () => ({
   impactAsync: jest.fn(),

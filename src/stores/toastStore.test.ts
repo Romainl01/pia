@@ -6,6 +6,7 @@ describe('toastStore', () => {
       visible: false,
       message: '',
       undoAction: null,
+      toastId: 0,
     });
   });
 
@@ -46,6 +47,24 @@ describe('toastStore', () => {
 
       const { undoAction } = useToastStore.getState();
       expect(undoAction).toBeNull();
+    });
+
+    it('should increment toastId on each call to force component remount', () => {
+      const { showToast, hideToast } = useToastStore.getState();
+
+      showToast('First message');
+      const firstId = useToastStore.getState().toastId;
+      expect(firstId).toBe(1);
+
+      hideToast();
+      showToast('Second message');
+      const secondId = useToastStore.getState().toastId;
+      expect(secondId).toBe(2);
+
+      hideToast();
+      showToast('Third message');
+      const thirdId = useToastStore.getState().toastId;
+      expect(thirdId).toBe(3);
     });
   });
 
