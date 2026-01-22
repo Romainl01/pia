@@ -1,11 +1,12 @@
 import { forwardRef } from 'react';
 import { Pressable, View, Text, StyleSheet } from 'react-native';
 import { SymbolView } from 'expo-symbols';
+import type { SFSymbol } from 'sf-symbols-typescript';
 import * as Haptics from 'expo-haptics';
 import { colors } from '@/src/constants/colors';
 
 interface SettingsRowProps {
-  icon: string;
+  icon: SFSymbol;
   label: string;
   value: string;
   onPress?: () => void;

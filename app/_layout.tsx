@@ -28,7 +28,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout(): React.ReactElement | null {
   const router = useRouter();
-  const responseListener = useRef<Notifications.Subscription>();
+  const responseListener = useRef<Notifications.Subscription | undefined>(undefined);
 
   const friends = useFriendsStore((state) => state.friends);
   const {
@@ -57,9 +57,7 @@ export default function RootLayout(): React.ReactElement | null {
     );
 
     return () => {
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
-      }
+      responseListener.current?.remove();
     };
   }, [router]);
 

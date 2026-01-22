@@ -20,6 +20,9 @@ jest.mock('expo-notifications', () => ({
   AndroidImportance: {
     MAX: 5,
   },
+  SchedulableTriggerInputTypes: {
+    DATE: 'date',
+  },
 }));
 
 describe('notificationService', () => {
@@ -248,7 +251,10 @@ describe('notificationService', () => {
             body: 'Send wishes, make their day!',
             data: { type: 'birthday', friendIds: ['friend-1'] },
           },
-          trigger: triggerDate,
+          trigger: {
+            type: 'date',
+            date: triggerDate,
+          },
         });
       });
     });
@@ -270,7 +276,10 @@ describe('notificationService', () => {
             body: 'You last checked in 7 days ago',
             data: { type: 'catchup', friendId: 'friend-1' },
           },
-          trigger: triggerDate,
+          trigger: {
+            type: 'date',
+            date: triggerDate,
+          },
         });
       });
     });

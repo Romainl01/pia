@@ -1,4 +1,5 @@
 import { render, fireEvent } from '@testing-library/react-native';
+import type { SFSymbol } from 'sf-symbols-typescript';
 import { SettingsRow } from './SettingsRow';
 
 // Mock expo-symbols
@@ -16,7 +17,7 @@ jest.mock('expo-haptics', () => ({
 
 describe('SettingsRow', () => {
   const defaultProps = {
-    icon: 'gift',
+    icon: 'gift' as SFSymbol,
     label: 'Birthday',
     value: 'Oct 20, 1990',
     onPress: jest.fn(),

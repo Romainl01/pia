@@ -15,6 +15,10 @@ interface FriendForNotification {
 // Formatting Functions
 // ============================================
 
+function getFirstName(name: string): string {
+  return name.split(' ')[0];
+}
+
 /**
  * Format birthday notification title
  * - 1 friend: "It's John's birthday 🎉"
@@ -24,20 +28,22 @@ interface FriendForNotification {
 export function formatBirthdayTitle(friends: FriendForNotification[]): string {
   if (friends.length === 0) return '';
 
-  const getFirstName = (name: string) => name.split(' ')[0];
+  const firstName = getFirstName(friends[0].name);
 
   if (friends.length === 1) {
-    return `It's ${getFirstName(friends[0].name)}'s birthday 🎉`;
+    return `It's ${firstName}'s birthday 🎉`;
   }
 
+  const secondName = getFirstName(friends[1].name);
+
   if (friends.length === 2) {
-    return `It's ${getFirstName(friends[0].name)} and ${getFirstName(friends[1].name)}'s birthday 🎉`;
+    return `It's ${firstName} and ${secondName}'s birthday 🎉`;
   }
 
   // 3+ friends: show first 2 names + "and X others"
   const othersCount = friends.length - 2;
   const othersText = othersCount === 1 ? "1 other's" : `${othersCount} others'`;
-  return `It's ${getFirstName(friends[0].name)}, ${getFirstName(friends[1].name)} and ${othersText} birthday 🎉`;
+  return `It's ${firstName}, ${secondName} and ${othersText} birthday 🎉`;
 }
 
 /**
@@ -108,14 +114,10 @@ export function isBirthdayOnDate(birthday: string | null | undefined, date: Date
   }
 
   // Handle leap year birthday (Feb 29)
+  // In leap year, show on Feb 29; in non-leap year, show on Feb 28
   if (birthMonth === 2 && birthDay === 29) {
-    if (isLeapYear) {
-      // In leap year, show on Feb 29
-      return todayMonth === 2 && todayDay === 29;
-    } else {
-      // In non-leap year, show on Feb 28
-      return todayMonth === 2 && todayDay === 28;
-    }
+    const targetDay = isLeapYear ? 29 : 28;
+    return todayMonth === 2 && todayDay === targetDay;
   }
 
   return todayMonth === birthMonth && todayDay === birthDay;
@@ -173,10 +175,10 @@ export const NotificationService = {
     // Set how notifications are handled when app is in foreground
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
-        shouldShowInForeground: true,
       }),
     });
 
@@ -214,7 +216,10 @@ export const NotificationService = {
           friendIds: friends.map((f) => f.id),
         },
       },
-      trigger: triggerDate,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: triggerDate,
+      },
     });
   },
 
@@ -236,7 +241,10 @@ export const NotificationService = {
           friendId: friend.id,
         },
       },
-      trigger: triggerDate,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: triggerDate,
+      },
     });
   },
 
@@ -294,10 +302,8 @@ export const NotificationService = {
       await this.scheduleBirthdayNotification(birthdayFriends, birthdayTime);
     }
 
-    // Schedule catch-up notifications (individual, staggered)
-    for (let i = 0; i < catchUpFriends.length; i++) {
-      const friend = catchUpFriends[i];
-      // Stagger times randomly within the 9-10 AM window
+    // Schedule catch-up notifications (individual, random times within window)
+    for (const friend of catchUpFriends) {
       const catchUpTime = getRandomTimeInWindow(9, 10);
       await this.scheduleCatchUpNotification(friend, catchUpTime);
     }
