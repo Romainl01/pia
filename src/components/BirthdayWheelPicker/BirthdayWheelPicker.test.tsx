@@ -29,9 +29,9 @@ describe('BirthdayWheelPicker', () => {
     mockOnChange.mockClear();
   });
 
-  it('should render three picker columns when expanded', () => {
+  it('should render three picker columns', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} />
     );
 
     expect(getByTestId('day-picker')).toBeTruthy();
@@ -41,7 +41,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should display day items', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 27, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 27, month: 0, year: undefined }} onChange={mockOnChange} />
     );
 
     expect(getByTestId('day-picker-item-1')).toBeTruthy();
@@ -51,7 +51,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should display month items', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 1, month: 5, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 1, month: 5, year: undefined }} onChange={mockOnChange} />
     );
 
     expect(getByTestId('month-picker-item-0')).toBeTruthy();
@@ -61,7 +61,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should display year items including "none"', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 1, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 1, month: 0, year: undefined }} onChange={mockOnChange} />
     );
 
     expect(getByTestId('year-picker-item-none')).toBeTruthy();
@@ -70,7 +70,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should call onChange when day scroll snaps', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} />
     );
 
     scrollToIndex(getByTestId, 'day-picker', 19);
@@ -80,7 +80,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should call onChange when month scroll snaps', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} />
     );
 
     scrollToIndex(getByTestId, 'month-picker', 6);
@@ -90,7 +90,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should call onChange when year scroll snaps', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} />
     );
 
     const currentYear = new Date().getFullYear();
@@ -102,7 +102,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should set year to undefined when scrolled to "none"', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: 2000 }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: 2000 }} onChange={mockOnChange} />
     );
 
     scrollToIndex(getByTestId, 'year-picker', 0);
@@ -112,7 +112,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should clamp day when switching to a shorter month', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 31, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 31, month: 0, year: undefined }} onChange={mockOnChange} />
     );
 
     scrollToIndex(getByTestId, 'month-picker', 1);
@@ -122,7 +122,7 @@ describe('BirthdayWheelPicker', () => {
 
   it('should allow 29 days in February for leap years', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 31, month: 0, year: 2000 }} onChange={mockOnChange} expanded={true} />
+      <BirthdayWheelPicker value={{ day: 31, month: 0, year: 2000 }} onChange={mockOnChange} />
     );
 
     scrollToIndex(getByTestId, 'month-picker', 1);

@@ -21,7 +21,6 @@ export interface BirthdayValue {
 interface BirthdayWheelPickerProps {
   value: BirthdayValue;
   onChange: (value: BirthdayValue) => void;
-  expanded: boolean;
 }
 
 // ─── WheelColumn ────────────────────────────────────────────────
@@ -78,11 +77,23 @@ function WheelItem({ index, label, scrollY, testID }: WheelItemProps): React.Rea
     extrapolate: 'clamp',
   });
 
+  const rotateX = scrollY.interpolate({
+    inputRange: [
+      itemOffset - 2 * ITEM_HEIGHT,
+      itemOffset - ITEM_HEIGHT,
+      itemOffset,
+      itemOffset + ITEM_HEIGHT,
+      itemOffset + 2 * ITEM_HEIGHT,
+    ],
+    outputRange: ['-50deg', '-25deg', '0deg', '25deg', '50deg'],
+    extrapolate: 'clamp',
+  });
+
   return (
     <Animated.View
       style={[
         styles.wheelItem,
-        { opacity, transform: [{ scale }] },
+        { opacity, transform: [{ perspective: 800 }, { rotateX }, { scale }] },
       ]}
     >
       <Text style={styles.wheelItemText} testID={testID}>
@@ -101,7 +112,8 @@ function WheelColumn<T extends string | number>({
   width,
   testID,
 }: WheelColumnProps<T>): React.ReactElement {
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const initialIndex = Math.max(0, items.findIndex((item) => item.value === selectedValue));
+  const scrollY = useRef(new Animated.Value(initialIndex * ITEM_HEIGHT)).current;
   const scrollRef = useRef<ScrollView>(null);
   const isUserScrolling = useRef(false);
   const lastReportedIndex = useRef(-1);
@@ -180,7 +192,7 @@ function WheelColumn<T extends string | number>({
   );
 }
 
-// ─── Constants ──────────────────────────────────────────────────
+// ─── Data ───────────────────────────────────────────────────────
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -197,12 +209,14 @@ function daysInMonth(month: number, year?: number): number {
 
 // ─── BirthdayWheelPicker ────────────────────────────────────────
 
-export function BirthdayWheelPicker({ value, onChange, expanded }: BirthdayWheelPickerProps): React.ReactElement {
+export function BirthdayWheelPicker({ value, onChange }: BirthdayWheelPickerProps): React.ReactElement {
   const maxDays = useMemo(() => daysInMonth(value.month, value.year), [value.month, value.year]);
 
   const dayItems = useMemo(() => {
     const items: { label: string; value: number }[] = [];
-    for (let d = 1; d <= maxDays; d++) items.push({ label: String(d), value: d });
+    for (let d = 1; d <= maxDays; d++) {
+      items.push({ label: String(d), value: d });
+    }
     return items;
   }, [maxDays]);
 
@@ -213,7 +227,9 @@ export function BirthdayWheelPicker({ value, onChange, expanded }: BirthdayWheel
 
   const yearItems = useMemo(() => {
     const items: { label: string; value: string }[] = [{ label: '----', value: 'none' }];
-    for (let y = CURRENT_YEAR; y >= MIN_YEAR; y--) items.push({ label: String(y), value: String(y) });
+    for (let y = CURRENT_YEAR; y >= MIN_YEAR; y--) {
+      items.push({ label: String(y), value: String(y) });
+    }
     return items;
   }, []);
 
@@ -236,17 +252,12 @@ export function BirthdayWheelPicker({ value, onChange, expanded }: BirthdayWheel
   const handleYearChange = useCallback(
     (rawValue: string) => {
       const year = rawValue === 'none' ? undefined : Number(rawValue);
-      const month = value.month;
-      const max = daysInMonth(month, year);
+      const max = daysInMonth(value.month, year);
       const day = Math.min(value.day, max);
       onChange({ ...value, year, day });
     },
     [value, onChange],
   );
-
-  if (!expanded) {
-    return <></>;
-  }
 
   return (
     <View style={styles.wheelRow}>

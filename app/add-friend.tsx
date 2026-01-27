@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import Animated, { FadeInDown, FadeOutDown, FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlassView } from 'expo-glass-effect';
@@ -146,6 +147,14 @@ export default function AddFriendScreen(): React.ReactElement {
     setPendingPermissionRequest,
   ]);
 
+  const handleBirthdayRowPress = useCallback(() => {
+    if (!birthday) {
+      const now = new Date();
+      setBirthday({ day: now.getDate(), month: now.getMonth(), year: undefined });
+    }
+    setShowBirthdayPicker((prev) => !prev);
+  }, [birthday]);
+
   const handleLastCatchUpConfirm = useCallback((selectedDate: Date) => {
     setLastCatchUp(selectedDate);
     setShowLastCatchUpPicker(false);
@@ -200,9 +209,12 @@ export default function AddFriendScreen(): React.ReactElement {
       </View>
 
       {/* Settings rows */}
-      <View style={styles.settingsSection}>
+      <Animated.View style={styles.settingsSection} layout={LinearTransition.duration(300)}>
         {/* Relationship row with dropdown menu */}
-        <View style={[styles.menuContainer, { zIndex: showCategoryMenu ? 200 : 1 }]}>
+        <Animated.View
+          style={[styles.menuContainer, { zIndex: showCategoryMenu ? 200 : 1 }]}
+          layout={LinearTransition.duration(300)}
+        >
           <SettingsRow
             icon="person.2"
             label="Relationship"
@@ -220,59 +232,92 @@ export default function AddFriendScreen(): React.ReactElement {
             direction="down"
             testID="category-menu"
           />
-        </View>
+        </Animated.View>
 
-        <SettingsRow
-          icon="gift"
-          label="Birthday"
-          value={birthdayDisplayValue}
-          onPress={() => {
-            if (!birthday) {
-              const now = new Date();
-              setBirthday({ day: now.getDate(), month: now.getMonth(), year: undefined });
-            }
-            setShowBirthdayPicker((prev) => !prev);
-          }}
-          chevronType="expand"
-          hasValue={birthday !== null}
-          testID="birthday-row"
-        />
-        <BirthdayWheelPicker
-          expanded={showBirthdayPicker}
-          value={birthday ?? { day: 1, month: 0 }}
-          onChange={setBirthday}
-        />
-
-        <SettingsRow
-          icon="calendar"
-          label="Last catch-up"
-          value={lastCatchUpDisplayValue}
-          onPress={() => setShowLastCatchUpPicker(true)}
-          chevronType="expand"
-          hasValue={lastCatchUp !== null}
-          testID="last-catchup-row"
-        />
-
-        {/* Frequency row with dropdown menu */}
-        <View style={[styles.menuContainer, { zIndex: showFrequencyMenu ? 200 : 1 }]}>
+        {/* Birthday row — always visible */}
+        <Animated.View layout={LinearTransition.duration(300)}>
           <SettingsRow
-            icon="arrow.trianglehead.2.clockwise"
-            label="Frequency"
-            value={frequencyDisplayValue}
-            onPress={() => setShowFrequencyMenu(true)}
-            chevronType="dropdown"
-            testID="frequency-row"
+            icon="gift"
+            label="Birthday"
+            value={birthdayDisplayValue}
+            onPress={handleBirthdayRowPress}
+            chevronType="expand"
+            hasValue={birthday !== null}
+            testID="birthday-row"
           />
-          <GlassMenu
-            visible={showFrequencyMenu}
-            onClose={() => setShowFrequencyMenu(false)}
-            items={FREQUENCY_MENU_ITEMS}
-            selectedValue={frequency}
-            onSelect={setFrequency}
-            testID="frequency-menu"
-          />
-        </View>
-      </View>
+        </Animated.View>
+
+        {/* Picker + Done — only when open */}
+        {showBirthdayPicker && (
+          <Animated.View
+            entering={FadeInDown.duration(300)}
+            exiting={FadeOutDown.duration(200)}
+          >
+            <BirthdayWheelPicker
+              value={birthday ?? { day: 1, month: 0 }}
+              onChange={setBirthday}
+            />
+            <View style={styles.doneButtonContainer}>
+              <Pressable
+                onPress={() => setShowBirthdayPicker(false)}
+                testID="birthday-done-button"
+              >
+                <GlassView
+                  style={styles.doneButton}
+                  tintColor={colors.primary}
+                  glassEffectStyle="clear"
+                >
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </GlassView>
+              </Pressable>
+            </View>
+          </Animated.View>
+        )}
+
+        {/* Last catch-up — hidden when picker open */}
+        {!showBirthdayPicker && (
+          <Animated.View
+            entering={FadeIn.duration(300).delay(100)}
+            exiting={FadeOut.duration(200)}
+          >
+            <SettingsRow
+              icon="calendar"
+              label="Last catch-up"
+              value={lastCatchUpDisplayValue}
+              onPress={() => setShowLastCatchUpPicker(true)}
+              chevronType="expand"
+              hasValue={lastCatchUp !== null}
+              testID="last-catchup-row"
+            />
+          </Animated.View>
+        )}
+
+        {/* Frequency row — hidden when picker open */}
+        {!showBirthdayPicker && (
+          <Animated.View
+            entering={FadeIn.duration(300).delay(150)}
+            exiting={FadeOut.duration(200)}
+            style={[styles.menuContainer, { zIndex: showFrequencyMenu ? 200 : 1 }]}
+          >
+            <SettingsRow
+              icon="arrow.trianglehead.2.clockwise"
+              label="Frequency"
+              value={frequencyDisplayValue}
+              onPress={() => setShowFrequencyMenu(true)}
+              chevronType="dropdown"
+              testID="frequency-row"
+            />
+            <GlassMenu
+              visible={showFrequencyMenu}
+              onClose={() => setShowFrequencyMenu(false)}
+              items={FREQUENCY_MENU_ITEMS}
+              selectedValue={frequency}
+              onSelect={setFrequency}
+              testID="frequency-menu"
+            />
+          </Animated.View>
+        )}
+      </Animated.View>
 
       {/* Last catch-up date picker modal */}
       <DateTimePickerModal
@@ -359,6 +404,22 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: colors.primary,
     fontSize: 20,
+    fontWeight: '600',
+  },
+  doneButtonContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+  },
+  doneButton: {
+    paddingHorizontal: 28,
+    paddingVertical: 10,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    color: colors.neutralWhite,
+    fontSize: 17,
     fontWeight: '600',
   },
 });
