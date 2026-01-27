@@ -24,16 +24,14 @@ function scrollToIndex(
 describe('BirthdayWheelPicker', () => {
   const defaultValue: BirthdayValue = { day: 15, month: 0, year: undefined };
   const mockOnChange = jest.fn();
-  const mockOnDone = jest.fn();
 
   beforeEach(() => {
     mockOnChange.mockClear();
-    mockOnDone.mockClear();
   });
 
-  it('should render three picker columns', () => {
+  it('should render three picker columns when expanded', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} expanded={true} />
     );
 
     expect(getByTestId('day-picker')).toBeTruthy();
@@ -43,10 +41,9 @@ describe('BirthdayWheelPicker', () => {
 
   it('should display day items', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 27, month: 0, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 27, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
-    // January has 31 days — check a few items exist
     expect(getByTestId('day-picker-item-1')).toBeTruthy();
     expect(getByTestId('day-picker-item-27')).toBeTruthy();
     expect(getByTestId('day-picker-item-31')).toBeTruthy();
@@ -54,17 +51,17 @@ describe('BirthdayWheelPicker', () => {
 
   it('should display month items', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 1, month: 5, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 1, month: 5, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
-    expect(getByTestId('month-picker-item-0')).toBeTruthy(); // January
-    expect(getByTestId('month-picker-item-5')).toBeTruthy(); // June
-    expect(getByTestId('month-picker-item-11')).toBeTruthy(); // December
+    expect(getByTestId('month-picker-item-0')).toBeTruthy();
+    expect(getByTestId('month-picker-item-5')).toBeTruthy();
+    expect(getByTestId('month-picker-item-11')).toBeTruthy();
   });
 
   it('should display year items including "none"', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 1, month: 0, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 1, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
     expect(getByTestId('year-picker-item-none')).toBeTruthy();
@@ -73,10 +70,9 @@ describe('BirthdayWheelPicker', () => {
 
   it('should call onChange when day scroll snaps', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
-    // Scroll to day index 19 → day value 20 (1-indexed)
     scrollToIndex(getByTestId, 'day-picker', 19);
 
     expect(mockOnChange).toHaveBeenCalledWith({ day: 20, month: 0, year: undefined });
@@ -84,10 +80,9 @@ describe('BirthdayWheelPicker', () => {
 
   it('should call onChange when month scroll snaps', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
-    // Scroll to month index 6 → July (0-indexed)
     scrollToIndex(getByTestId, 'month-picker', 6);
 
     expect(mockOnChange).toHaveBeenCalledWith({ day: 15, month: 6, year: undefined });
@@ -95,13 +90,11 @@ describe('BirthdayWheelPicker', () => {
 
   it('should call onChange when year scroll snaps', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
-    // Year items: index 0 = "none", index 1 = current year, ...
-    // Find the index of year 2000
     const currentYear = new Date().getFullYear();
-    const yearIndex = 1 + (currentYear - 2000); // +1 for "none" at index 0
+    const yearIndex = 1 + (currentYear - 2000);
     scrollToIndex(getByTestId, 'year-picker', yearIndex);
 
     expect(mockOnChange).toHaveBeenCalledWith({ day: 15, month: 0, year: 2000 });
@@ -109,10 +102,9 @@ describe('BirthdayWheelPicker', () => {
 
   it('should set year to undefined when scrolled to "none"', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 15, month: 0, year: 2000 }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 15, month: 0, year: 2000 }} onChange={mockOnChange} expanded={true} />
     );
 
-    // Index 0 = "none"
     scrollToIndex(getByTestId, 'year-picker', 0);
 
     expect(mockOnChange).toHaveBeenCalledWith({ day: 15, month: 0, year: undefined });
@@ -120,53 +112,21 @@ describe('BirthdayWheelPicker', () => {
 
   it('should clamp day when switching to a shorter month', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 31, month: 0, year: undefined }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 31, month: 0, year: undefined }} onChange={mockOnChange} expanded={true} />
     );
 
-    // Switch to February (month index 1)
     scrollToIndex(getByTestId, 'month-picker', 1);
 
-    // Day should be clamped to 28 (no year = non-leap year assumed)
     expect(mockOnChange).toHaveBeenCalledWith({ day: 28, month: 1, year: undefined });
   });
 
   it('should allow 29 days in February for leap years', () => {
     const { getByTestId } = render(
-      <BirthdayWheelPicker value={{ day: 31, month: 0, year: 2000 }} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
+      <BirthdayWheelPicker value={{ day: 31, month: 0, year: 2000 }} onChange={mockOnChange} expanded={true} />
     );
 
-    // Switch to February
     scrollToIndex(getByTestId, 'month-picker', 1);
 
     expect(mockOnChange).toHaveBeenCalledWith({ day: 29, month: 1, year: 2000 });
-  });
-
-  // Modal overlay tests
-  it('should call onDone when Done button is pressed', () => {
-    const { getByTestId } = render(
-      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
-    );
-
-    fireEvent.press(getByTestId('birthday-done-button'));
-
-    expect(mockOnDone).toHaveBeenCalledTimes(1);
-  });
-
-  it('should call onDone when backdrop is pressed', () => {
-    const { getByTestId } = render(
-      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
-    );
-
-    fireEvent.press(getByTestId('birthday-backdrop'));
-
-    expect(mockOnDone).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render Done text in the toolbar', () => {
-    const { getByText } = render(
-      <BirthdayWheelPicker value={defaultValue} onChange={mockOnChange} visible={true} onDone={mockOnDone} />
-    );
-
-    expect(getByText('Done')).toBeTruthy();
   });
 });

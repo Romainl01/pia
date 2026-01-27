@@ -12,9 +12,6 @@ import { SymbolView } from 'expo-symbols';
 import * as Haptics from 'expo-haptics';
 import { colors } from '@/src/constants/colors';
 
-/**
- * A menu item with a label and value
- */
 export interface GlassMenuItem<T> {
   label: string;
   value: T;
@@ -31,6 +28,8 @@ interface GlassMenuProps<T> {
   selectedValue?: T;
   /** Callback when an item is selected */
   onSelect: (value: T) => void;
+  /** Direction the menu opens: 'up' (default) or 'down' */
+  direction?: 'up' | 'down';
   /** Test ID for the menu container */
   testID?: string;
 }
@@ -40,17 +39,13 @@ const ITEM_HEIGHT = 48;
 const MENU_PADDING_VERTICAL = 6;
 const MENU_WIDTH = 160;
 
-/**
- * A dropdown menu with iOS glass effect background.
- * Renders as an overlay within its parent container.
- * Position the menu using the `style` prop on the container or by placing it appropriately in the layout.
- */
 export function GlassMenu<T>({
   visible,
   onClose,
   items,
   selectedValue,
   onSelect,
+  direction = 'up',
   testID,
 }: GlassMenuProps<T>): React.ReactElement | null {
   const scaleAnim = useRef(new Animated.Value(0.97)).current;
@@ -115,10 +110,13 @@ export function GlassMenu<T>({
       {/* Backdrop - covers parent container to catch outside taps */}
       <Pressable style={styles.backdrop} onPress={handleClose} />
 
-      {/* Menu - positioned absolutely from bottom-right */}
+      {/* Menu - positioned absolutely relative to the row */}
       <Animated.View
         style={[
           styles.menuWrapper,
+          direction === 'down'
+            ? { top: '100%', marginTop: 4, transformOrigin: 'top right' }
+            : { bottom: '100%', marginBottom: 4, transformOrigin: 'bottom right' },
           {
             opacity: opacityAnim,
             transform: [{ scale: scaleAnim }],
@@ -184,13 +182,9 @@ const styles = StyleSheet.create({
   },
   menuWrapper: {
     position: 'absolute',
-    // Position above the row, aligned to the right
-    bottom: '100%',
     right: 0,
-    marginBottom: 4,
     width: MENU_WIDTH,
     zIndex: 1000,
-    transformOrigin: 'bottom right',
   },
   menuContainer: {
     borderRadius: MENU_BORDER_RADIUS,

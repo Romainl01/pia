@@ -3,6 +3,14 @@ import type { SelectedContact } from '@/src/hooks/useContacts';
 
 export type FriendCategory = 'friend' | 'family' | 'work' | 'partner' | 'flirt';
 
+export const RELATIONSHIP_LABELS: Record<FriendCategory, string> = {
+  friend: 'Friend',
+  family: 'Family',
+  work: 'Work',
+  partner: 'Partner',
+  flirt: 'Flirt',
+};
+
 export interface Friend {
   id: string;
   name: string;

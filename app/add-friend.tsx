@@ -11,32 +11,19 @@ import { SettingsRow } from '@/src/components/SettingsRow';
 import { BirthdayWheelPicker } from '@/src/components/BirthdayWheelPicker';
 import type { BirthdayValue } from '@/src/components/BirthdayWheelPicker';
 import { GlassMenu } from '@/src/components/GlassMenu';
-import { useFriendsStore } from '@/src/stores/friendsStore';
+import { useFriendsStore, RELATIONSHIP_LABELS } from '@/src/stores/friendsStore';
 import type { FriendCategory } from '@/src/stores/friendsStore';
 import { useNotificationStateStore } from '@/src/stores/notificationStateStore';
 import { colors } from '@/src/constants/colors';
 import { typography } from '@/src/constants/typography';
-import type { ContactBirthday } from '@/src/hooks/useContacts';
 
 const BUTTON_SIZE = 44;
 
 type FrequencyOption = 7 | 14 | 30 | 90 | null;
 
-const CATEGORY_LABELS: Record<FriendCategory, string> = {
-  friend: 'Friend',
-  family: 'Family',
-  work: 'Work',
-  partner: 'Partner',
-  flirt: 'Flirt',
-};
-
-const CATEGORY_MENU_ITEMS = [
-  { label: 'Friend', value: 'friend' as FriendCategory },
-  { label: 'Family', value: 'family' as FriendCategory },
-  { label: 'Work', value: 'work' as FriendCategory },
-  { label: 'Partner', value: 'partner' as FriendCategory },
-  { label: 'Flirt', value: 'flirt' as FriendCategory },
-];
+const RELATIONSHIP_MENU_ITEMS = Object.entries(RELATIONSHIP_LABELS).map(
+  ([value, label]) => ({ label, value: value as FriendCategory })
+);
 
 const FREQUENCY_LABELS: Record<number, string> = {
   7: 'Weekly',
@@ -80,17 +67,6 @@ function formatDate(date: Date | null): string {
   });
 }
 
-/**
- * Converts ContactBirthday to BirthdayValue
- */
-function contactBirthdayToValue(birthday: ContactBirthday): BirthdayValue {
-  return {
-    day: birthday.day,
-    month: birthday.month,
-    year: birthday.year,
-  };
-}
-
 export default function AddFriendScreen(): React.ReactElement {
   const insets = useSafeAreaInsets();
   const pendingContact = useFriendsStore((state) => state.pendingContact);
@@ -117,7 +93,7 @@ export default function AddFriendScreen(): React.ReactElement {
   // Pre-fill birthday from contact if available
   useEffect(() => {
     if (pendingContact?.birthday) {
-      setBirthday(contactBirthdayToValue(pendingContact.birthday));
+      setBirthday(pendingContact.birthday);
     }
   }, [pendingContact]);
 
@@ -133,7 +109,6 @@ export default function AddFriendScreen(): React.ReactElement {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     // Format birthday as YYYY-MM-DD (with year) or MM-DD (without year)
-    // birthday is guaranteed non-null here because isFormValid checks it
     const mm = String(birthday.month + 1).padStart(2, '0');
     const dd = String(birthday.day).padStart(2, '0');
     const birthdayString = birthday.year
@@ -171,33 +146,9 @@ export default function AddFriendScreen(): React.ReactElement {
     setPendingPermissionRequest,
   ]);
 
-  const handleBirthdayChange = useCallback((value: BirthdayValue) => {
-    setBirthday(value);
-  }, []);
-
   const handleLastCatchUpConfirm = useCallback((selectedDate: Date) => {
     setLastCatchUp(selectedDate);
     setShowLastCatchUpPicker(false);
-  }, []);
-
-  const handleLastCatchUpCancel = useCallback(() => {
-    setShowLastCatchUpPicker(false);
-  }, []);
-
-  const handleCategoryPress = useCallback(() => {
-    setShowCategoryMenu(true);
-  }, []);
-
-  const handleCategorySelect = useCallback((value: FriendCategory) => {
-    setCategory(value);
-  }, []);
-
-  const handleFrequencyPress = useCallback(() => {
-    setShowFrequencyMenu(true);
-  }, []);
-
-  const handleFrequencySelect = useCallback((value: FrequencyOption) => {
-    setFrequency(value);
   }, []);
 
   if (!pendingContact) {
@@ -250,22 +201,23 @@ export default function AddFriendScreen(): React.ReactElement {
 
       {/* Settings rows */}
       <View style={styles.settingsSection}>
-        {/* Category row with dropdown menu */}
-        <View style={styles.categoryContainer}>
+        {/* Relationship row with dropdown menu */}
+        <View style={[styles.menuContainer, { zIndex: showCategoryMenu ? 200 : 1 }]}>
           <SettingsRow
             icon="person.2"
-            label="Category"
-            value={CATEGORY_LABELS[category]}
-            onPress={handleCategoryPress}
+            label="Relationship"
+            value={RELATIONSHIP_LABELS[category]}
+            onPress={() => setShowCategoryMenu(true)}
             chevronType="dropdown"
             testID="category-row"
           />
           <GlassMenu
             visible={showCategoryMenu}
             onClose={() => setShowCategoryMenu(false)}
-            items={CATEGORY_MENU_ITEMS}
+            items={RELATIONSHIP_MENU_ITEMS}
             selectedValue={category}
-            onSelect={handleCategorySelect}
+            onSelect={setCategory}
+            direction="down"
             testID="category-menu"
           />
         </View>
@@ -276,15 +228,19 @@ export default function AddFriendScreen(): React.ReactElement {
           value={birthdayDisplayValue}
           onPress={() => {
             if (!birthday) {
-              // Initialize with today's date when first opening
               const now = new Date();
               setBirthday({ day: now.getDate(), month: now.getMonth(), year: undefined });
             }
-            setShowBirthdayPicker(true);
+            setShowBirthdayPicker((prev) => !prev);
           }}
           chevronType="expand"
           hasValue={birthday !== null}
           testID="birthday-row"
+        />
+        <BirthdayWheelPicker
+          expanded={showBirthdayPicker}
+          value={birthday ?? { day: 1, month: 0 }}
+          onChange={setBirthday}
         />
 
         <SettingsRow
@@ -298,12 +254,12 @@ export default function AddFriendScreen(): React.ReactElement {
         />
 
         {/* Frequency row with dropdown menu */}
-        <View style={styles.frequencyContainer}>
+        <View style={[styles.menuContainer, { zIndex: showFrequencyMenu ? 200 : 1 }]}>
           <SettingsRow
             icon="arrow.trianglehead.2.clockwise"
             label="Frequency"
             value={frequencyDisplayValue}
-            onPress={handleFrequencyPress}
+            onPress={() => setShowFrequencyMenu(true)}
             chevronType="dropdown"
             testID="frequency-row"
           />
@@ -312,19 +268,11 @@ export default function AddFriendScreen(): React.ReactElement {
             onClose={() => setShowFrequencyMenu(false)}
             items={FREQUENCY_MENU_ITEMS}
             selectedValue={frequency}
-            onSelect={handleFrequencySelect}
+            onSelect={setFrequency}
             testID="frequency-menu"
           />
         </View>
       </View>
-
-      {/* Birthday wheel picker modal */}
-      <BirthdayWheelPicker
-        visible={showBirthdayPicker}
-        value={birthday ?? { day: 1, month: 0 }}
-        onChange={handleBirthdayChange}
-        onDone={() => setShowBirthdayPicker(false)}
-      />
 
       {/* Last catch-up date picker modal */}
       <DateTimePickerModal
@@ -335,7 +283,7 @@ export default function AddFriendScreen(): React.ReactElement {
         date={lastCatchUp ?? new Date()}
         maximumDate={new Date()}
         onConfirm={handleLastCatchUpConfirm}
-        onCancel={handleLastCatchUpCancel}
+        onCancel={() => setShowLastCatchUpPicker(false)}
         accentColor={colors.primary}
         buttonTextColorIOS={colors.primary}
         modalStyleIOS={styles.datePickerModal}
@@ -385,18 +333,13 @@ const styles = StyleSheet.create({
     color: colors.neutralDark,
     textAlign: 'center',
   },
-  categoryContainer: {
-    position: 'relative',
-    zIndex: 101,
-  },
   settingsSection: {
     paddingHorizontal: 16,
     paddingBottom: 16,
     gap: 16,
   },
-  frequencyContainer: {
+  menuContainer: {
     position: 'relative',
-    zIndex: 100,
   },
   emptyText: {
     ...typography.body1,

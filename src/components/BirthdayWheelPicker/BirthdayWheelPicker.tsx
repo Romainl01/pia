@@ -2,13 +2,13 @@ import { useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  Modal,
-  Pressable,
   ScrollView,
+  StyleSheet,
+  Animated,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { GlassView } from 'expo-glass-effect';
 import * as Haptics from 'expo-haptics';
 import { colors } from '@/src/constants/colors';
 
@@ -21,12 +21,12 @@ export interface BirthdayValue {
 interface BirthdayWheelPickerProps {
   value: BirthdayValue;
   onChange: (value: BirthdayValue) => void;
-  visible: boolean;
-  onDone: () => void;
+  expanded: boolean;
 }
 
 // ─── WheelColumn ────────────────────────────────────────────────
-// A single scrollable column that snaps to items, mimicking UIPickerView.
+// A single scrollable column that snaps to items, mimicking UIPickerView
+// with opacity + scale fade for the "drum" illusion.
 
 const ITEM_HEIGHT = 44;
 const VISIBLE_ITEMS = 5;
@@ -40,6 +40,60 @@ interface WheelColumnProps<T extends string | number> {
   testID?: string;
 }
 
+// ─── WheelItem ──────────────────────────────────────────────────
+
+interface WheelItemProps {
+  index: number;
+  label: string;
+  scrollY: Animated.Value;
+  testID?: string;
+}
+
+function WheelItem({ index, label, scrollY, testID }: WheelItemProps): React.ReactElement {
+  const itemOffset = index * ITEM_HEIGHT;
+
+  const opacity = scrollY.interpolate({
+    inputRange: [
+      itemOffset - 3 * ITEM_HEIGHT,
+      itemOffset - 2 * ITEM_HEIGHT,
+      itemOffset - ITEM_HEIGHT,
+      itemOffset,
+      itemOffset + ITEM_HEIGHT,
+      itemOffset + 2 * ITEM_HEIGHT,
+      itemOffset + 3 * ITEM_HEIGHT,
+    ],
+    outputRange: [0.1, 0.25, 0.5, 1, 0.5, 0.25, 0.1],
+    extrapolate: 'clamp',
+  });
+
+  const scale = scrollY.interpolate({
+    inputRange: [
+      itemOffset - 2 * ITEM_HEIGHT,
+      itemOffset - ITEM_HEIGHT,
+      itemOffset,
+      itemOffset + ITEM_HEIGHT,
+      itemOffset + 2 * ITEM_HEIGHT,
+    ],
+    outputRange: [0.85, 0.92, 1, 0.92, 0.85],
+    extrapolate: 'clamp',
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.wheelItem,
+        { opacity, transform: [{ scale }] },
+      ]}
+    >
+      <Text style={styles.wheelItemText} testID={testID}>
+        {label}
+      </Text>
+    </Animated.View>
+  );
+}
+
+// ─── WheelColumn ────────────────────────────────────────────────
+
 function WheelColumn<T extends string | number>({
   items,
   selectedValue,
@@ -47,6 +101,7 @@ function WheelColumn<T extends string | number>({
   width,
   testID,
 }: WheelColumnProps<T>): React.ReactElement {
+  const scrollY = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<ScrollView>(null);
   const isUserScrolling = useRef(false);
   const lastReportedIndex = useRef(-1);
@@ -56,10 +111,9 @@ function WheelColumn<T extends string | number>({
     [items, selectedValue],
   );
 
-  // Scroll to the selected item when it changes externally (not from user scroll)
   useEffect(() => {
     if (!isUserScrolling.current) {
-      scrollRef.current?.scrollTo({
+      (scrollRef.current as any)?.scrollTo({
         y: selectedIndex * ITEM_HEIGHT,
         animated: false,
       });
@@ -86,15 +140,18 @@ function WheelColumn<T extends string | number>({
     isUserScrolling.current = true;
   }, []);
 
-  // Padding so first/last items can be centered
   const verticalPadding = (WHEEL_HEIGHT - ITEM_HEIGHT) / 2;
 
   return (
     <View style={[styles.wheelColumn, width != null ? { width } : { flex: 1 }]} testID={testID}>
-      {/* Selection highlight bar */}
-      <View style={styles.selectionHighlight} pointerEvents="none" />
+      {/* Selection highlight — glass pill */}
+      <GlassView
+        style={styles.selectionHighlight}
+        pointerEvents="none"
+        testID={testID ? `${testID}-highlight` : undefined}
+      />
 
-      <ScrollView
+      <Animated.ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         snapToInterval={ITEM_HEIGHT}
@@ -102,22 +159,23 @@ function WheelColumn<T extends string | number>({
         contentContainerStyle={{ paddingVertical: verticalPadding }}
         onMomentumScrollEnd={handleMomentumScrollEnd}
         onScrollBeginDrag={handleScrollBeginDrag}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
+        scrollEventThrottle={16}
         testID={testID ? `${testID}-scroll` : undefined}
       >
         {items.map((item, i) => (
-          <View key={`${item.value}-${i}`} style={styles.wheelItem}>
-            <Text
-              style={[
-                styles.wheelItemText,
-                item.value === selectedValue && styles.wheelItemTextSelected,
-              ]}
-              testID={testID ? `${testID}-item-${item.value}` : undefined}
-            >
-              {item.label}
-            </Text>
-          </View>
+          <WheelItem
+            key={`${item.value}-${i}`}
+            index={i}
+            label={item.label}
+            scrollY={scrollY}
+            testID={testID ? `${testID}-item-${item.value}` : undefined}
+          />
         ))}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -132,7 +190,6 @@ const MONTH_NAMES = [
 const MIN_YEAR = 1920;
 const CURRENT_YEAR = new Date().getFullYear();
 
-/** Returns the number of days in a given month (0-indexed). */
 function daysInMonth(month: number, year?: number): number {
   const y = year ?? 2001;
   return new Date(y, month + 1, 0).getDate();
@@ -140,7 +197,7 @@ function daysInMonth(month: number, year?: number): number {
 
 // ─── BirthdayWheelPicker ────────────────────────────────────────
 
-export function BirthdayWheelPicker({ value, onChange, visible, onDone }: BirthdayWheelPickerProps): React.ReactElement {
+export function BirthdayWheelPicker({ value, onChange, expanded }: BirthdayWheelPickerProps): React.ReactElement {
   const maxDays = useMemo(() => daysInMonth(value.month, value.year), [value.month, value.year]);
 
   const dayItems = useMemo(() => {
@@ -187,90 +244,40 @@ export function BirthdayWheelPicker({ value, onChange, visible, onDone }: Birthd
     [value, onChange],
   );
 
+  if (!expanded) {
+    return <></>;
+  }
+
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      testID="birthday-modal"
-    >
-      <View style={styles.overlay}>
-        {/* Backdrop — tap to dismiss */}
-        <Pressable
-          style={styles.backdrop}
-          onPress={onDone}
-          testID="birthday-backdrop"
-        />
-
-        {/* Bottom panel */}
-        <View style={styles.panel}>
-          {/* Toolbar */}
-          <View style={styles.toolbar}>
-            <Pressable onPress={onDone} testID="birthday-done-button">
-              <Text style={styles.doneText}>Done</Text>
-            </Pressable>
-          </View>
-
-          {/* Wheels */}
-          <View style={styles.wheelRow}>
-            <WheelColumn
-              items={dayItems}
-              selectedValue={value.day}
-              onValueChange={handleDayChange}
-              width={64}
-              testID="day-picker"
-            />
-            <WheelColumn
-              items={monthItems}
-              selectedValue={value.month}
-              onValueChange={handleMonthChange}
-              testID="month-picker"
-            />
-            <WheelColumn
-              items={yearItems}
-              selectedValue={value.year != null ? String(value.year) : 'none'}
-              onValueChange={handleYearChange}
-              width={96}
-              testID="year-picker"
-            />
-          </View>
-        </View>
-      </View>
-    </Modal>
+    <View style={styles.wheelRow}>
+      <WheelColumn
+        items={dayItems}
+        selectedValue={value.day}
+        onValueChange={handleDayChange}
+        width={72}
+        testID="day-picker"
+      />
+      <WheelColumn
+        items={monthItems}
+        selectedValue={value.month}
+        onValueChange={handleMonthChange}
+        testID="month-picker"
+      />
+      <WheelColumn
+        items={yearItems}
+        selectedValue={value.year != null ? String(value.year) : 'none'}
+        onValueChange={handleYearChange}
+        width={100}
+        testID="year-picker"
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  panel: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 24,
-  },
-  toolbar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.neutralGray200,
-  },
-  doneText: {
-    color: colors.primary,
-    fontSize: 17,
-    fontWeight: '600',
-  },
   wheelRow: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   wheelColumn: {
     height: WHEEL_HEIGHT,
@@ -279,12 +286,11 @@ const styles = StyleSheet.create({
   selectionHighlight: {
     position: 'absolute',
     top: (WHEEL_HEIGHT - ITEM_HEIGHT) / 2,
-    left: 0,
-    right: 0,
+    left: 4,
+    right: 4,
     height: ITEM_HEIGHT,
-    backgroundColor: colors.neutralGray200,
-    borderRadius: 8,
-    opacity: 0.4,
+    borderRadius: 10,
+    zIndex: 0,
   },
   wheelItem: {
     height: ITEM_HEIGHT,
@@ -292,11 +298,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   wheelItemText: {
-    fontSize: 20,
-    color: colors.neutralGray,
-  },
-  wheelItemTextSelected: {
+    fontSize: 21,
+    fontWeight: '500',
     color: colors.neutralDark,
-    fontWeight: '600',
   },
 });

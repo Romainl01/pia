@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { SymbolView } from 'expo-symbols';
 import { Avatar } from '@/src/components/Avatar';
-import { Friend, FriendCategory } from '@/src/stores/friendsStore';
+import { Friend, RELATIONSHIP_LABELS } from '@/src/stores/friendsStore';
 import { getDaysRemaining, getRelativeLastContact } from '@/src/utils';
 import { colors } from '@/src/constants/colors';
 import { typography } from '@/src/constants/typography';
@@ -33,14 +33,6 @@ function getStatusColor(status: CheckInStatus): string {
   }
 }
 
-const CATEGORY_LABELS: Record<FriendCategory, string> = {
-  friend: 'Friend',
-  family: 'Family',
-  work: 'Work',
-  partner: 'Partner',
-  flirt: 'Flirt',
-};
-
 function FriendCard({ friend, onPress, onCatchUp }: FriendCardProps): React.ReactElement {
   const daysRemaining = getDaysRemaining(friend.lastContactAt, friend.frequencyDays);
   const status = getCheckInStatus(daysRemaining);
@@ -68,7 +60,7 @@ function FriendCard({ friend, onPress, onCatchUp }: FriendCardProps): React.Reac
             </Text>
             <View style={styles.categoryPill}>
               <Text style={styles.categoryText}>
-                {CATEGORY_LABELS[friend.category]}
+                {RELATIONSHIP_LABELS[friend.category]}
               </Text>
             </View>
           </View>
@@ -122,7 +114,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    gap: 6,
+    gap: 8,
   },
   nameRow: {
     flexDirection: 'row',
@@ -136,17 +128,16 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   categoryPill: {
-    backgroundColor: 'rgba(242, 140, 89, 0.1)',
     borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 10,
-    paddingHorizontal: 8,
+    borderColor: 'rgba(242, 140, 89, 0.4)',
+    borderRadius: 6,
+    paddingHorizontal: 7,
     paddingVertical: 2,
   },
   categoryText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
-    color: colors.primary,
+    color: colors.neutralGray,
   },
   statusContainer: {
     flexDirection: 'row',
