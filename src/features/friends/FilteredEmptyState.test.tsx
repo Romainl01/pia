@@ -15,35 +15,48 @@ describe('FilteredEmptyState', () => {
         <FilteredEmptyState category="family" onAddFriend={mockOnAddFriend} />
       );
 
-      expect(getByText('No Family friends yet')).toBeTruthy();
+      expect(getByText('No family yet')).toBeTruthy();
     });
 
     it('should display correct category name for each category', () => {
       const { rerender, getByText } = render(
         <FilteredEmptyState category="work" onAddFriend={mockOnAddFriend} />
       );
-      expect(getByText('No Work friends yet')).toBeTruthy();
+      expect(getByText('No work yet')).toBeTruthy();
 
       rerender(<FilteredEmptyState category="partner" onAddFriend={mockOnAddFriend} />);
-      expect(getByText('No Partner friends yet')).toBeTruthy();
+      expect(getByText('No partner yet')).toBeTruthy();
 
       rerender(<FilteredEmptyState category="flirt" onAddFriend={mockOnAddFriend} />);
-      expect(getByText('No Flirt friends yet')).toBeTruthy();
+      expect(getByText('No flirt yet')).toBeTruthy();
     });
 
-    it('should display subtitle text', () => {
-      const { getByText } = render(
+    it('should display contextual subtitle text', () => {
+      const { getByText, rerender } = render(
         <FilteredEmptyState category="family" onAddFriend={mockOnAddFriend} />
       );
+      expect(getByText('Keep track of birthdays and catch-ups')).toBeTruthy();
 
-      expect(getByText('Add someone from your contacts to this category')).toBeTruthy();
+      rerender(<FilteredEmptyState category="friend" onAddFriend={mockOnAddFriend} />);
+      expect(getByText('Add someone from your contacts')).toBeTruthy();
+
+      rerender(<FilteredEmptyState category="work" onAddFriend={mockOnAddFriend} />);
+      expect(getByText('Stay connected with your professional network')).toBeTruthy();
     });
 
-    it('should render "Add a friend" button', () => {
-      const { getByText } = render(
+    it('should render contextual button label for each category', () => {
+      const { getByText, rerender } = render(
         <FilteredEmptyState category="family" onAddFriend={mockOnAddFriend} />
       );
+      expect(getByText('Add a family member')).toBeTruthy();
 
+      rerender(<FilteredEmptyState category="work" onAddFriend={mockOnAddFriend} />);
+      expect(getByText('Add a colleague')).toBeTruthy();
+
+      rerender(<FilteredEmptyState category="partner" onAddFriend={mockOnAddFriend} />);
+      expect(getByText('Add a partner')).toBeTruthy();
+
+      rerender(<FilteredEmptyState category="friend" onAddFriend={mockOnAddFriend} />);
       expect(getByText('Add a friend')).toBeTruthy();
     });
   });

@@ -171,8 +171,8 @@ describe('FriendsList', () => {
 
       const { getByText } = render(<FriendsList onAddFriend={mockOnAddFriend} />);
 
-      expect(getByText('No Partner friends yet')).toBeTruthy();
-      expect(getByText('Add someone from your contacts to this category')).toBeTruthy();
+      expect(getByText('No partner yet')).toBeTruthy();
+      expect(getByText('Never forget important dates')).toBeTruthy();
     });
 
     it('should call onAddFriend when add button in filtered empty state is pressed', () => {
@@ -192,7 +192,7 @@ describe('FriendsList', () => {
 
       // Should show general empty state, not filtered empty state
       expect(getByText(/no friends yet/i)).toBeTruthy();
-      expect(queryByText('No Family friends yet')).toBeNull();
+      expect(queryByText('No family yet')).toBeNull();
     });
   });
 });

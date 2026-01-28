@@ -26,8 +26,6 @@ export interface Friend {
 
 export type NewFriend = Omit<Friend, 'id' | 'createdAt'>;
 
-export type CategoryCounts = Record<FriendCategory | 'all', number>;
-
 interface FriendsState {
   friends: Friend[];
   pendingContact: SelectedContact | null;
@@ -40,8 +38,6 @@ interface FriendsState {
   logCatchUp: (friendId: string) => string | undefined;
   undoCatchUp: (friendId: string, previousLastContactAt: string) => void;
   setSelectedCategory: (category: FriendCategory | null) => void;
-  getCategoryCounts: () => CategoryCounts;
-  getFilteredFriends: () => Friend[];
 }
 
 /**
@@ -119,32 +115,6 @@ export const useFriendsStore = create<FriendsState>()(
 
       setSelectedCategory: (category) => {
         set({ selectedCategory: category });
-      },
-
-      getCategoryCounts: () => {
-        const { friends } = get();
-        const counts: CategoryCounts = {
-          all: friends.length,
-          friend: 0,
-          family: 0,
-          work: 0,
-          partner: 0,
-          flirt: 0,
-        };
-
-        friends.forEach((f) => {
-          counts[f.category]++;
-        });
-
-        return counts;
-      },
-
-      getFilteredFriends: () => {
-        const { friends, selectedCategory } = get();
-        if (selectedCategory === null) {
-          return friends;
-        }
-        return friends.filter((f) => f.category === selectedCategory);
       },
     }),
     {

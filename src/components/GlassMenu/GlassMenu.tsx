@@ -30,6 +30,8 @@ interface GlassMenuProps<T> {
   onSelect: (value: T) => void;
   /** Direction the menu opens: 'up' (default) or 'down' */
   direction?: 'up' | 'down';
+  /** Horizontal alignment of the menu: 'left' or 'right' (default) */
+  alignment?: 'left' | 'right';
   /** Test ID for the menu container */
   testID?: string;
 }
@@ -46,6 +48,7 @@ export function GlassMenu<T>({
   selectedValue,
   onSelect,
   direction = 'up',
+  alignment = 'right',
   testID,
 }: GlassMenuProps<T>): React.ReactElement | null {
   const scaleAnim = useRef(new Animated.Value(0.97)).current;
@@ -114,9 +117,10 @@ export function GlassMenu<T>({
       <Animated.View
         style={[
           styles.menuWrapper,
+          alignment === 'left' ? { left: 0 } : { right: 0 },
           direction === 'down'
-            ? { top: '100%', marginTop: 4, transformOrigin: 'top right' }
-            : { bottom: '100%', marginBottom: 4, transformOrigin: 'bottom right' },
+            ? { top: '100%', marginTop: 4, transformOrigin: alignment === 'left' ? 'top left' : 'top right' }
+            : { bottom: '100%', marginBottom: 4, transformOrigin: alignment === 'left' ? 'bottom left' : 'bottom right' },
           {
             opacity: opacityAnim,
             transform: [{ scale: scaleAnim }],
@@ -182,7 +186,6 @@ const styles = StyleSheet.create({
   },
   menuWrapper: {
     position: 'absolute',
-    right: 0,
     width: MENU_WIDTH,
     zIndex: 1000,
   },

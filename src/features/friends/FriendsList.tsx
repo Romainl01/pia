@@ -21,19 +21,21 @@ function Separator(): React.ReactElement {
 function FriendsList({ onFriendPress, onAddFriend }: FriendsListProps): React.ReactElement {
   const friends = useFriendsStore((state) => state.friends);
   const selectedCategory = useFriendsStore((state) => state.selectedCategory);
-  const getFilteredFriends = useFriendsStore((state) => state.getFilteredFriends);
   const logCatchUp = useFriendsStore((state) => state.logCatchUp);
   const undoCatchUp = useFriendsStore((state) => state.undoCatchUp);
   const showToast = useToastStore((state) => state.showToast);
 
-  // Get filtered friends and sort by urgency (most urgent/overdue first)
+  // Filter by category and sort by urgency (most urgent/overdue first)
+  // Dependencies are primitive/array values that React can compare correctly
   const sortedFriends = useMemo(() => {
-    const filtered = getFilteredFriends();
+    const filtered = selectedCategory
+      ? friends.filter((f) => f.category === selectedCategory)
+      : friends;
     return [...filtered].sort((a, b) =>
       getDaysRemaining(a.lastContactAt, a.frequencyDays) -
       getDaysRemaining(b.lastContactAt, b.frequencyDays)
     );
-  }, [getFilteredFriends]);
+  }, [friends, selectedCategory]);
 
   const handleCatchUp = useCallback((friend: Friend) => {
     const previousDate = logCatchUp(friend.id);

@@ -10,16 +10,35 @@ interface FilteredEmptyStateProps {
   onAddFriend: () => void;
 }
 
+// Contextual button labels and subtitles for each category
+const CATEGORY_CTA_LABELS: Record<FriendCategory, string> = {
+  friend: 'Add a friend',
+  family: 'Add a family member',
+  work: 'Add a colleague',
+  partner: 'Add a partner',
+  flirt: 'Add a flirt',
+};
+
+const CATEGORY_SUBTITLES: Record<FriendCategory, string> = {
+  friend: 'Add someone from your contacts',
+  family: 'Keep track of birthdays and catch-ups',
+  work: 'Stay connected with your professional network',
+  partner: 'Never forget important dates',
+  flirt: 'Keep the spark alive',
+};
+
 function FilteredEmptyState({ category, onAddFriend }: FilteredEmptyStateProps): React.ReactElement {
   const categoryLabel = RELATIONSHIP_LABELS[category];
+  const ctaLabel = CATEGORY_CTA_LABELS[category];
+  const subtitle = CATEGORY_SUBTITLES[category];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>No {categoryLabel} friends yet</Text>
-      <Text style={styles.subtitle}>Add someone from your contacts to this category</Text>
+      <Text style={styles.title}>No {categoryLabel.toLowerCase()} yet</Text>
+      <Text style={styles.subtitle}>{subtitle}</Text>
       <GlassButton
         onPress={onAddFriend}
-        label="Add a friend"
+        label={ctaLabel}
         testID="filtered-empty-add-button"
       />
     </View>
@@ -32,6 +51,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
+    paddingBottom: 140, // Offset upward to account for header + filter
     gap: 16,
   },
   title: {
