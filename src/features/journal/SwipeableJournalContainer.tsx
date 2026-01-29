@@ -5,6 +5,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
   runOnJS,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -28,6 +29,9 @@ const SWIPE_THRESHOLD_RATIO = 0.3; // 30% of screen width
 const SWIPE_VELOCITY_THRESHOLD = 500;
 const RUBBER_BAND_FACTOR = 0.3; // How much to resist at edges
 
+// Module-level variable to persist entry direction across component remounts
+let pendingEntryDirection: 'from-left' | 'from-right' | null = null;
+
 /**
  * Swipeable container for journal entries.
  * Swipe right → previous day (into the past)
@@ -48,11 +52,25 @@ function SwipeableJournalContainer({
   const canGoPrevious = useSharedValue(canGoToPreviousDate(currentDate));
   const canGoNext = useSharedValue(canGoToNextDate(currentDate));
 
-  // Update shared values when date changes
+  // Update shared values when date changes and animate new content in
   useEffect(() => {
     canGoPrevious.value = canGoToPreviousDate(currentDate);
     canGoNext.value = canGoToNextDate(currentDate);
-  }, [currentDate, canGoPrevious, canGoNext]);
+
+    // Animate new content in from the correct direction
+    const direction = pendingEntryDirection;
+    pendingEntryDirection = null; // Clear immediately
+
+    if (direction === 'from-left') {
+      translateX.value = -screenWidth;
+      translateX.value = withTiming(0, { duration: 250 });
+    } else if (direction === 'from-right') {
+      translateX.value = screenWidth;
+      translateX.value = withTiming(0, { duration: 250 });
+    } else {
+      translateX.value = 0;
+    }
+  }, [currentDate, canGoPrevious, canGoNext, translateX, screenWidth]);
 
   const swipeThreshold = screenWidth * SWIPE_THRESHOLD_RATIO;
 
@@ -71,6 +89,7 @@ function SwipeableJournalContainer({
   const navigateToPrevious = useCallback(() => {
     if (canGoToPreviousDate(currentDate)) {
       triggerHaptic('navigate');
+      pendingEntryDirection = 'from-left'; // Previous day enters from left
       onDateChange(getPreviousDate(currentDate));
     } else {
       triggerHaptic('boundary');
@@ -80,6 +99,7 @@ function SwipeableJournalContainer({
   const navigateToNext = useCallback(() => {
     if (canGoToNextDate(currentDate)) {
       triggerHaptic('navigate');
+      pendingEntryDirection = 'from-right'; // Next day enters from right
       onDateChange(getNextDate(currentDate));
     } else {
       triggerHaptic('boundary');
@@ -110,22 +130,34 @@ function SwipeableJournalContainer({
       'worklet';
       const swipedPastThreshold = Math.abs(translateX.value) > swipeThreshold;
       const fastSwipe = Math.abs(event.velocityX) > SWIPE_VELOCITY_THRESHOLD;
+      const shouldNavigate = swipedPastThreshold || fastSwipe;
+      const swipedRight = translateX.value > 0;
 
-      if (swipedPastThreshold || fastSwipe) {
-        if (translateX.value > 0) {
-          // Swiped right → go to previous day
-          runOnJS(navigateToPrevious)();
-        } else {
-          // Swiped left → go to next day
-          runOnJS(navigateToNext)();
-        }
+      if (shouldNavigate) {
+        // Animate off-screen in swipe direction, then navigate
+        const targetX = swipedRight ? screenWidth : -screenWidth;
+
+        translateX.value = withTiming(
+          targetX,
+          { duration: 200 },
+          (finished) => {
+            'worklet';
+            if (finished) {
+              if (swipedRight) {
+                runOnJS(navigateToPrevious)();
+              } else {
+                runOnJS(navigateToNext)();
+              }
+            }
+          }
+        );
+      } else {
+        // Didn't pass threshold - spring back to center
+        translateX.value = withSpring(0, {
+          damping: 20,
+          stiffness: 200,
+        });
       }
-
-      // Spring back to center
-      translateX.value = withSpring(0, {
-        damping: 20,
-        stiffness: 200,
-      });
     });
 
   const animatedStyle = useAnimatedStyle(() => ({

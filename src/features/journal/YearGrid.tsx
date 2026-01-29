@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 
-import { useJournalStore } from '@/src/stores/journalStore';
+import { useJournalStore, JournalEntry } from '@/src/stores/journalStore';
 import { generateYearDates, isToday, isPastOrToday } from '@/src/utils/journalDateHelpers';
 import { DayDot, DayDotStatus } from './DayDot';
 
@@ -91,7 +91,7 @@ function YearGrid({
 
 function getDotStatus(
   date: string,
-  entries: Record<string, unknown>
+  entries: Record<string, JournalEntry>
 ): DayDotStatus {
   if (isToday(date)) {
     return 'today';
@@ -107,7 +107,6 @@ function getDotStatus(
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    justifyContent: 'center',
   },
   grid: {
     flexDirection: 'row',

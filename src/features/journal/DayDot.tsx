@@ -22,15 +22,22 @@ interface DayDotProps {
  * Visual states:
  * - past-with-entry: Orange filled (primary)
  * - past-without-entry: Gray filled
- * - today: Orange with outer ring
- * - future: Very faint gray, not pressable
+ * - today: Larger orange dot with soft glow
+ * - future: Faint gray, not pressable
  */
 function DayDot({ status, size, onPress, testID }: DayDotProps): React.ReactElement {
   const isFuture = status === 'future';
   const isToday = status === 'today';
 
   // Dot is 70% of cell size
-  const dotSize = Math.max(4, size * 0.7);
+  const baseDotSize = Math.max(4, size * 0.7);
+
+  // Today's dot is 1.15x larger to make it pop (subtle)
+  const todayScale = isToday ? 1.15 : 1;
+  const dotSize = baseDotSize * todayScale;
+
+  // Glow is 1.5x the dot size - contained within cell
+  const glowSize = dotSize * 1.5;
 
   return (
     <Pressable
@@ -43,11 +50,11 @@ function DayDot({ status, size, onPress, testID }: DayDotProps): React.ReactElem
       {isToday && (
         <View
           style={[
-            styles.todayRing,
+            styles.todayGlow,
             {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
+              width: glowSize,
+              height: glowSize,
+              borderRadius: glowSize / 2,
             },
           ]}
         />
@@ -72,7 +79,7 @@ function getDotColor(status: DayDotStatus): string {
     case 'past-without-entry':
       return colors.neutralGray200;
     case 'future':
-      return 'rgba(217, 219, 225, 0.3)';
+      return 'rgba(217, 219, 225, 0.5)';
   }
 }
 
@@ -81,10 +88,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  todayRing: {
+  todayGlow: {
     position: 'absolute',
-    borderWidth: 1.5,
-    borderColor: colors.primary,
+    backgroundColor: 'rgba(242, 140, 89, 0.25)',
   },
 });
 

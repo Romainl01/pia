@@ -123,7 +123,7 @@ export default function RootLayout(): React.ReactElement | null {
               name="journal-entry/[date]"
               options={{
                 presentation: 'card',
-                animation: 'slide_from_right',
+                animation: 'none', // Disable navigation animation - we handle it ourselves
                 gestureEnabled: false, // We handle gestures ourselves for swipe navigation
               }}
             />

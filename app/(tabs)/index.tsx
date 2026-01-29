@@ -12,10 +12,10 @@ import { getDaysRemainingInYear, toDateString } from '@/src/utils/journalDateHel
 
 // Standard iOS tab bar height
 const TAB_BAR_HEIGHT = 49;
-// Header height (padding + title)
-const HEADER_HEIGHT = 60;
-// FAB size + margin above tab bar
-const FAB_AREA_HEIGHT = 56 + 16;
+// Header height (padding + title) + margin below header
+const HEADER_HEIGHT = 60 + 16;
+// FAB size + margins (16 above tab bar + 16 above FAB for clearance)
+const FAB_AREA_HEIGHT = 56 + 16 + 16;
 // Horizontal padding for the grid
 const HORIZONTAL_PADDING = 16;
 
@@ -57,7 +57,7 @@ export default function JournalScreen(): React.ReactElement {
           <DaysRemainingCounter daysRemaining={daysRemaining} />
         </View>
 
-        <View style={styles.gridContainer}>
+        <View style={[styles.gridContainer, { height: availableHeight }]}>
           <YearGrid
             year={currentYear}
             availableWidth={availableWidth}
@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
     color: colors.neutralDark,
   },
   gridContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
   },
   fab: {
     position: 'absolute',

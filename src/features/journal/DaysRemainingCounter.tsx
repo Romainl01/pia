@@ -15,9 +15,11 @@ function DaysRemainingCounter({
   daysRemaining,
   testID,
 }: DaysRemainingCounterProps): React.ReactElement {
+  const dayWord = daysRemaining === 1 ? 'day' : 'days';
+
   return (
     <Text style={styles.text} testID={testID}>
-      {daysRemaining} left
+      {daysRemaining} {dayWord} left
     </Text>
   );
 }
