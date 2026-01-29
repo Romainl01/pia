@@ -24,19 +24,6 @@ export function EmptyFriendsScreen({ onAddFriend }: EmptyFriendsScreenProps) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Pia</Text>
-        <GlassButton
-          onPress={onAddFriend}
-          size={40}
-          icon={
-            <SymbolView
-              name="plus"
-              size={22}
-              weight="semibold"
-              tintColor={colors.primary}
-            />
-          }
-          testID="add-friend-button"
-        />
       </View>
 
       {/* Hero Section */}
@@ -54,6 +41,22 @@ export function EmptyFriendsScreen({ onAddFriend }: EmptyFriendsScreenProps) {
           />
         </View>
       </View>
+
+      {/* Floating Action Button */}
+      <GlassButton
+        onPress={onAddFriend}
+        size={56}
+        style={styles.fab}
+        icon={
+          <SymbolView
+            name="person.fill.badge.plus"
+            size={28}
+            weight="semibold"
+            tintColor={colors.primary}
+          />
+        }
+        testID="add-friend-button"
+      />
     </View>
   );
 }
@@ -65,9 +68,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     paddingVertical: 16,
   },
   title: {
@@ -93,5 +93,10 @@ const styles = StyleSheet.create({
     color: colors.neutralGray300,
     textAlign: "center",
     lineHeight: 24,
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 100,
   },
 });

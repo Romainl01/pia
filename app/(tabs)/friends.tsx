@@ -68,19 +68,6 @@ export default function FriendsScreen(): React.ReactElement {
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>Pia</Text>
-          <GlassButton
-            onPress={handleAddFriend}
-            size={40}
-            icon={
-              <SymbolView
-                name="plus"
-                size={22}
-                weight="semibold"
-                tintColor={colors.primary}
-              />
-            }
-            testID="add-friend-button"
-          />
         </View>
 
         <View style={styles.filterContainer}>
@@ -94,6 +81,22 @@ export default function FriendsScreen(): React.ReactElement {
           <FriendsList onAddFriend={handleAddFriend} />
         </View>
       </View>
+
+      {/* Floating Action Button */}
+      <GlassButton
+        onPress={handleAddFriend}
+        size={56}
+        style={styles.fab}
+        icon={
+          <SymbolView
+            name="person.fill.badge.plus"
+            size={28}
+            weight="semibold"
+            tintColor={colors.primary}
+          />
+        }
+        testID="add-friend-button"
+      />
     </View>
   );
 }
@@ -107,9 +110,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceLight,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
@@ -124,5 +124,10 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 100,
   },
 });

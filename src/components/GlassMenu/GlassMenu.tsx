@@ -1,12 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Animated,
-  Platform,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Animated, Platform } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
 import { SymbolView } from 'expo-symbols';
 import * as Haptics from 'expo-haptics';

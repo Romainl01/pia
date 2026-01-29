@@ -47,9 +47,7 @@ function CategoryFilterButton({
   }, []);
 
   const handleSelect = useCallback(
-    (selected: MenuValue) => {
-      onChange(selected);
-    },
+    (selected: MenuValue) => onChange(selected),
     [onChange]
   );
 

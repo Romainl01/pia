@@ -125,8 +125,8 @@ function WheelColumn<T extends string | number>({
   );
 
   useEffect(() => {
-    if (!isUserScrolling.current) {
-      (scrollRef.current as any)?.scrollTo({
+    if (!isUserScrolling.current && scrollRef.current) {
+      scrollRef.current.scrollTo({
         y: selectedIndex * ITEM_HEIGHT,
         animated: false,
       });

@@ -54,12 +54,12 @@ describe("EmptyFriendsScreen", () => {
       expect(getByTestId("add-friend-button")).toBeTruthy();
     });
 
-    it("should render the plus SF Symbol", () => {
+    it("should render the person.fill.badge.plus SF Symbol", () => {
       const { getByTestId } = render(
         <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
-      expect(getByTestId("symbol-plus")).toBeTruthy();
+      expect(getByTestId("symbol-person.fill.badge.plus")).toBeTruthy();
     });
   });
 
