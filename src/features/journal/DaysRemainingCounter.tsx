@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
   text: {
     ...typography.mono2,
     color: colors.neutralGray,
-    textAlign: 'center',
   },
 });
 

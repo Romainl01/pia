@@ -4,9 +4,22 @@ import {
   formatJournalDate,
   isToday,
   isPastOrToday,
+  toDateString,
 } from './journalDateHelpers';
 
 describe('journalDateHelpers', () => {
+  describe('toDateString', () => {
+    it('should format date as YYYY-MM-DD', () => {
+      expect(toDateString(new Date(2025, 0, 1))).toBe('2025-01-01');
+      expect(toDateString(new Date(2025, 11, 31))).toBe('2025-12-31');
+    });
+
+    it('should zero-pad single digit months and days', () => {
+      expect(toDateString(new Date(2025, 4, 5))).toBe('2025-05-05');
+      expect(toDateString(new Date(2025, 8, 9))).toBe('2025-09-09');
+    });
+  });
+
   describe('getDaysRemainingInYear', () => {
     it('should return 365 on January 1st of a non-leap year', () => {
       const jan1 = new Date(2025, 0, 1); // 2025 is not a leap year
@@ -88,47 +101,25 @@ describe('journalDateHelpers', () => {
 
   describe('isToday', () => {
     it('should return true for today', () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const todayStr = `${year}-${month}-${day}`;
-
-      expect(isToday(todayStr)).toBe(true);
+      expect(isToday(toDateString(new Date()))).toBe(true);
     });
 
     it('should return false for yesterday', () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const year = yesterday.getFullYear();
-      const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-      const day = String(yesterday.getDate()).padStart(2, '0');
-      const yesterdayStr = `${year}-${month}-${day}`;
-
-      expect(isToday(yesterdayStr)).toBe(false);
+      expect(isToday(toDateString(yesterday))).toBe(false);
     });
 
     it('should return false for tomorrow', () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const year = tomorrow.getFullYear();
-      const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const day = String(tomorrow.getDate()).padStart(2, '0');
-      const tomorrowStr = `${year}-${month}-${day}`;
-
-      expect(isToday(tomorrowStr)).toBe(false);
+      expect(isToday(toDateString(tomorrow))).toBe(false);
     });
   });
 
   describe('isPastOrToday', () => {
     it('should return true for today', () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const todayStr = `${year}-${month}-${day}`;
-
-      expect(isPastOrToday(todayStr)).toBe(true);
+      expect(isPastOrToday(toDateString(new Date()))).toBe(true);
     });
 
     it('should return true for past dates', () => {
@@ -144,23 +135,13 @@ describe('journalDateHelpers', () => {
     it('should return true for yesterday', () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const year = yesterday.getFullYear();
-      const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-      const day = String(yesterday.getDate()).padStart(2, '0');
-      const yesterdayStr = `${year}-${month}-${day}`;
-
-      expect(isPastOrToday(yesterdayStr)).toBe(true);
+      expect(isPastOrToday(toDateString(yesterday))).toBe(true);
     });
 
     it('should return false for tomorrow', () => {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const year = tomorrow.getFullYear();
-      const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const day = String(tomorrow.getDate()).padStart(2, '0');
-      const tomorrowStr = `${year}-${month}-${day}`;
-
-      expect(isPastOrToday(tomorrowStr)).toBe(false);
+      expect(isPastOrToday(toDateString(tomorrow))).toBe(false);
     });
   });
 });
