@@ -12,7 +12,7 @@ describe("EmptyFriendsScreen", () => {
   describe("rendering", () => {
     it("should render the app title", () => {
       const { getByText } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       expect(getByText("Pia")).toBeTruthy();
@@ -20,7 +20,7 @@ describe("EmptyFriendsScreen", () => {
 
     it("should render the hero title", () => {
       const { getByText } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       expect(getByText("Keep your closest within reach")).toBeTruthy();
@@ -28,7 +28,7 @@ describe("EmptyFriendsScreen", () => {
 
     it("should render the hero subtitle", () => {
       const { getByText } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       expect(
@@ -40,7 +40,7 @@ describe("EmptyFriendsScreen", () => {
 
     it("should render the add friend CTA button", () => {
       const { getByText } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       expect(getByText("Add a friend")).toBeTruthy();
@@ -48,7 +48,7 @@ describe("EmptyFriendsScreen", () => {
 
     it("should render the plus icon button", () => {
       const { getByTestId } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       expect(getByTestId("add-friend-button")).toBeTruthy();
@@ -56,7 +56,7 @@ describe("EmptyFriendsScreen", () => {
 
     it("should render the person.fill.badge.plus SF Symbol", () => {
       const { getByTestId } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       expect(getByTestId("symbol-person.fill.badge.plus")).toBeTruthy();
@@ -66,7 +66,7 @@ describe("EmptyFriendsScreen", () => {
   describe("interactions", () => {
     it("should call onAddFriend when plus button is pressed", () => {
       const { getByTestId } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       fireEvent.press(getByTestId("add-friend-button"));
@@ -76,7 +76,7 @@ describe("EmptyFriendsScreen", () => {
 
     it("should call onAddFriend when add friend CTA is pressed", () => {
       const { getByTestId } = render(
-        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} tabBarHeight={80} />
+        <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
       fireEvent.press(getByTestId("add-friend-cta"));

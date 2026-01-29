@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SymbolView } from 'expo-symbols';
 import { EmptyFriendsScreen, FriendsList } from '@/src/features/friends';
 import { GlassButton } from '@/src/components/GlassButton';
@@ -16,9 +15,12 @@ import { typography } from '@/src/constants/typography';
  * Friends tab - shows list of friends or empty state
  * Handles the add friend flow: native contact picker → modal sheet
  */
+// Standard iOS tab bar height (49px) + safe area bottom inset
+const TAB_BAR_HEIGHT = 49;
+
 export default function FriendsScreen(): React.ReactElement {
   const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
+  const tabBarHeight = TAB_BAR_HEIGHT + insets.bottom;
   const friends = useFriendsStore((state) => state.friends);
   const hasFriend = useFriendsStore((state) => state.hasFriend);
   const setPendingContact = useFriendsStore((state) => state.setPendingContact);
@@ -60,7 +62,7 @@ export default function FriendsScreen(): React.ReactElement {
   if (!hasFriends) {
     return (
       <View style={styles.root}>
-        <EmptyFriendsScreen onAddFriend={handleAddFriend} tabBarHeight={tabBarHeight} />
+        <EmptyFriendsScreen onAddFriend={handleAddFriend} />
       </View>
     );
   }

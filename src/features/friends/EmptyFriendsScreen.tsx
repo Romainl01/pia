@@ -7,8 +7,10 @@ import { typography } from "@/src/constants/typography";
 
 interface EmptyFriendsScreenProps {
   onAddFriend: () => void;
-  tabBarHeight: number;
 }
+
+// Standard iOS tab bar height (49px) + safe area bottom inset
+const TAB_BAR_HEIGHT = 49;
 
 /**
  * Empty state screen shown when the user has no friends added yet.
@@ -17,8 +19,9 @@ interface EmptyFriendsScreenProps {
  * TODO: Add fallback icon for Android/Web using @expo/vector-icons
  * The SymbolView "plus" icon only works on iOS.
  */
-export function EmptyFriendsScreen({ onAddFriend, tabBarHeight }: EmptyFriendsScreenProps) {
+export function EmptyFriendsScreen({ onAddFriend }: EmptyFriendsScreenProps) {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = TAB_BAR_HEIGHT + insets.bottom;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
