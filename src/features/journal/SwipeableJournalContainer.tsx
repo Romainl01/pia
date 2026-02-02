@@ -59,26 +59,32 @@ function SwipeableJournalContainer({
 
     // Animate new content in from the correct direction
     const direction = pendingEntryDirection;
-    pendingEntryDirection = null; // Clear immediately
+    pendingEntryDirection = null;
 
-    if (direction === 'from-left') {
-      translateX.value = -screenWidth;
-      translateX.value = withTiming(0, { duration: 250 });
-    } else if (direction === 'from-right') {
-      translateX.value = screenWidth;
-      translateX.value = withTiming(0, { duration: 250 });
-    } else {
-      translateX.value = 0;
+    switch (direction) {
+      case 'from-left':
+        translateX.value = -screenWidth;
+        translateX.value = withTiming(0, { duration: 250 });
+        break;
+      case 'from-right':
+        translateX.value = screenWidth;
+        translateX.value = withTiming(0, { duration: 250 });
+        break;
+      default:
+        translateX.value = 0;
     }
   }, [currentDate, canGoPrevious, canGoNext, translateX, screenWidth]);
 
   const swipeThreshold = screenWidth * SWIPE_THRESHOLD_RATIO;
 
   const triggerHaptic = useCallback((type: 'navigate' | 'boundary') => {
-    if (type === 'navigate') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } else {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    switch (type) {
+      case 'navigate':
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        break;
+      case 'boundary':
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        break;
     }
   }, []);
 

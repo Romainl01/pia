@@ -16,7 +16,7 @@ export const colors = {
   neutralGray300: '#8A898E',
 
   // Surface
-  surfaceLight: '#F9F7E8',
+  surfaceLight: '#F9F9F5',
   surfaceCard: 'rgba(255, 255, 255, 0.5)',
 
   // Feedback

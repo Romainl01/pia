@@ -59,11 +59,7 @@ export function useAutoSave({
     }, JUST_SAVED_DURATION_MS);
   }, [onSave]);
 
-  // TODO: Implement the debounce effect
-  // This should:
-  // 1. Clear any existing debounce timer when content changes
-  // 2. Set a new timer that calls performSave after debounceMs
-  // 3. Clean up timers on unmount
+  // Debounce content changes and save after delay
   useEffect(() => {
     // Clear existing timer
     if (debounceTimerRef.current) {
