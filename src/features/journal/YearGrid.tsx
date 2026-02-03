@@ -1,12 +1,16 @@
 import { View, StyleSheet } from 'react-native';
+import { GlassView } from 'expo-glass-effect';
 
 import { useJournalStore, JournalEntry } from '@/src/stores/journalStore';
+import { useJournalSettingsStore } from '@/src/stores/journalSettingsStore';
 import { generateYearDates, isToday, isPastOrToday } from '@/src/utils/journalDateHelpers';
 import { DayDot, DayDotStatus } from './DayDot';
 
-const GAP = 2;
-const MIN_COLUMNS = 12;
-const MAX_COLUMNS = 25;
+const GAP = 5;
+const MIN_COLUMNS = 14;
+const MAX_COLUMNS = 28;
+const GLASS_PADDING = 16;
+const GLASS_BORDER_RADIUS = 16;
 
 interface YearGridProps {
   year: number;
@@ -62,29 +66,37 @@ function YearGrid({
   testID,
 }: YearGridProps): React.ReactElement {
   const entries = useJournalStore((state) => state.entries);
+  const colorScheme = useJournalSettingsStore((state) => state.colorScheme);
   const dates = generateYearDates(year);
+
+  // Subtract glass padding from available space for grid calculation
+  const innerWidth = availableWidth - GLASS_PADDING * 2;
+  const innerHeight = availableHeight - GLASS_PADDING * 2;
 
   const { columns, cellSize } = calculateGridLayout(
     dates.length,
-    availableWidth,
-    availableHeight
+    innerWidth,
+    innerHeight
   );
 
   const gridWidth = columns * cellSize + (columns - 1) * GAP;
 
   return (
     <View testID={testID} style={styles.container}>
-      <View style={[styles.grid, { width: gridWidth, gap: GAP }]}>
-        {dates.map((date) => (
-          <DayDot
-            key={date}
-            size={cellSize}
-            status={getDotStatus(date, entries)}
-            onPress={() => onDayPress(date)}
-            testID={`day-dot-${date}`}
-          />
-        ))}
-      </View>
+      <GlassView style={styles.glassContainer}>
+        <View style={[styles.grid, { width: gridWidth, gap: GAP }]}>
+          {dates.map((date) => (
+            <DayDot
+              key={date}
+              size={cellSize}
+              status={getDotStatus(date, entries)}
+              colorScheme={colorScheme}
+              onPress={() => onDayPress(date)}
+              testID={`day-dot-${date}`}
+            />
+          ))}
+        </View>
+      </GlassView>
     </View>
   );
 }
@@ -107,6 +119,11 @@ function getDotStatus(
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+  },
+  glassContainer: {
+    padding: GLASS_PADDING,
+    borderRadius: GLASS_BORDER_RADIUS,
+    overflow: 'hidden',
   },
   grid: {
     flexDirection: 'row',

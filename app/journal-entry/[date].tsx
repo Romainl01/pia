@@ -13,9 +13,12 @@ import { SymbolView } from 'expo-symbols';
 import { colors } from '@/src/constants/colors';
 import { typography } from '@/src/constants/typography';
 import { useJournalStore } from '@/src/stores/journalStore';
+import { useToastStore } from '@/src/stores/toastStore';
 import { useAutoSave } from '@/src/hooks/useAutoSave';
+import { getRandomCongratsMessage } from '@/src/utils/journalMessages';
 import { GlassButton } from '@/src/components/GlassButton';
 import { GlassDateChip } from '@/src/components/GlassDateChip';
+import { FloatingDoneButton } from '@/src/components/FloatingDoneButton';
 import { SwipeableJournalContainer } from '@/src/features/journal/SwipeableJournalContainer';
 
 /**
@@ -31,6 +34,7 @@ export default function JournalEntryScreen(): React.ReactElement {
 
   const getEntryByDate = useJournalStore((state) => state.getEntryByDate);
   const upsertEntry = useJournalStore((state) => state.upsertEntry);
+  const showToast = useToastStore((state) => state.showToast);
 
   const [content, setContent] = useState('');
 
@@ -62,6 +66,12 @@ export default function JournalEntryScreen(): React.ReactElement {
     saveNow();
     router.back();
   }, [saveNow]);
+
+  const handleDone = useCallback(() => {
+    saveNow();
+    showToast(getRandomCongratsMessage());
+    router.back();
+  }, [saveNow, showToast]);
 
   const handleDateChange = useCallback(
     (newDate: string) => {
@@ -128,6 +138,12 @@ export default function JournalEntryScreen(): React.ReactElement {
           />
         </KeyboardAvoidingView>
       </SwipeableJournalContainer>
+
+      {/* Floating Done Button */}
+      <FloatingDoneButton
+        hasContent={content.trim().length > 0}
+        onPress={handleDone}
+      />
     </View>
   );
 }

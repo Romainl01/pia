@@ -3,6 +3,19 @@ import { render, fireEvent, act } from '@testing-library/react-native';
 import { Toast } from './Toast';
 import { useToastStore } from '@/src/stores/toastStore';
 
+// Mock react-native-svg
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  return {
+    __esModule: true,
+    default: View,
+    Svg: View,
+    Rect: View,
+  };
+});
+
 // Mock react-native-reanimated
 jest.mock('react-native-reanimated', () => {
   const React = require('react');
@@ -16,13 +29,29 @@ jest.mock('react-native-reanimated', () => {
   );
   AnimatedView.displayName = 'AnimatedView';
 
-  const Animated = { View: AnimatedView };
+  const createAnimatedComponent = (Component: React.ComponentType<unknown>) => {
+    const AnimatedComponent = React.forwardRef(
+      ({ animatedProps, ...props }: { animatedProps?: unknown }, ref: React.Ref<unknown>) =>
+        React.createElement(Component, { ...props, ref })
+    );
+    AnimatedComponent.displayName = `Animated(${Component.displayName || Component.name || 'Component'})`;
+    return AnimatedComponent;
+  };
+
+  const Animated = {
+    View: AnimatedView,
+    createAnimatedComponent,
+  };
 
   return {
     __esModule: true,
     default: Animated,
     FadeInUp: { duration: () => ({}) },
     FadeOutDown: { duration: () => ({}) },
+    useSharedValue: (initialValue: number) => ({ value: initialValue }),
+    useAnimatedProps: () => ({}),
+    withTiming: (toValue: number) => toValue,
+    Easing: { linear: 'linear' },
   };
 });
 

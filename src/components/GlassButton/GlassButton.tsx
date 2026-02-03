@@ -9,6 +9,7 @@ interface GlassButtonProps {
   size?: number;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  labelColor?: string;
 }
 
 /**
@@ -22,6 +23,7 @@ function GlassButton({
   size = 40,
   style,
   testID,
+  labelColor,
 }: GlassButtonProps): React.ReactElement {
   const isIconOnly = !label && icon;
 
@@ -42,7 +44,11 @@ function GlassButton({
       >
         <View style={styles.content}>
           {icon}
-          {label && <Text style={styles.label}>{label}</Text>}
+          {label && (
+            <Text style={[styles.label, labelColor && { color: labelColor }]}>
+              {label}
+            </Text>
+          )}
         </View>
       </GlassView>
     </Pressable>

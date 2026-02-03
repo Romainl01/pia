@@ -89,7 +89,7 @@ function BurningFuseBorder({
         height={height - BORDER_WIDTH}
         rx={BORDER_RADIUS - BORDER_WIDTH / 2}
         ry={BORDER_RADIUS - BORDER_WIDTH / 2}
-        stroke={colors.feedbackSuccess}
+        stroke={colors.toastFuseBorder}
         strokeWidth={BORDER_WIDTH}
         fill="none"
         strokeDasharray={perimeter}
@@ -144,14 +144,6 @@ function Toast(): React.ReactElement | null {
       testID="toast-container"
       onLayout={handleLayout}
     >
-      {dimensions.width > 0 && dimensions.height > 0 && (
-        <BurningFuseBorder
-          width={dimensions.width}
-          height={dimensions.height}
-          duration={AUTO_DISMISS_MS}
-          toastId={String(toastId)}
-        />
-      )}
       <BlurView tint="extraLight" intensity={100} style={styles.glass}>
         <View style={styles.content}>
           <Text style={styles.message} numberOfLines={2}>
@@ -168,6 +160,14 @@ function Toast(): React.ReactElement | null {
           )}
         </View>
       </BlurView>
+      {dimensions.width > 0 && dimensions.height > 0 && (
+        <BurningFuseBorder
+          width={dimensions.width}
+          height={dimensions.height}
+          duration={AUTO_DISMISS_MS}
+          toastId={String(toastId)}
+        />
+      )}
     </Animated.View>
   );
 }
@@ -181,7 +181,6 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS,
     borderCurve: 'continuous',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    overflow: 'hidden',
   },
   glass: {
     borderRadius: BORDER_RADIUS,

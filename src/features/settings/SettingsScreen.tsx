@@ -3,8 +3,10 @@ import Constants from 'expo-constants';
 
 import { useNotificationPermission } from '@/src/hooks/useNotificationPermission';
 import { useNotificationStateStore } from '@/src/stores/notificationStateStore';
+import { useJournalSettingsStore } from '@/src/stores/journalSettingsStore';
 import { SettingsToggleRow } from '@/src/components/SettingsToggleRow';
 import { SettingsRow } from '@/src/components/SettingsRow/SettingsRow';
+import { JournalThemePicker } from '@/src/components/JournalThemePicker';
 import { colors } from '@/src/constants/colors';
 
 const appVersion = Constants.expoConfig?.version ?? '0.0.0';
@@ -18,6 +20,9 @@ function SettingsScreen(): React.ReactElement {
 
   const notificationsEnabled = useNotificationStateStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useNotificationStateStore((s) => s.setNotificationsEnabled);
+
+  const colorScheme = useJournalSettingsStore((s) => s.colorScheme);
+  const setColorScheme = useJournalSettingsStore((s) => s.setColorScheme);
 
   const isToggleOn = isGranted && notificationsEnabled;
 
@@ -56,6 +61,16 @@ function SettingsScreen(): React.ReactElement {
             <Text style={styles.deniedText}>Denied — tap to open Settings</Text>
           </Pressable>
         )}
+      </View>
+
+      {/* Appearance Section */}
+      <Text style={styles.sectionHeader}>APPEARANCE</Text>
+      <View style={styles.section}>
+        <JournalThemePicker
+          selectedScheme={colorScheme}
+          onSelectScheme={setColorScheme}
+          testID="journal-theme-picker"
+        />
       </View>
 
       {/* About Section */}

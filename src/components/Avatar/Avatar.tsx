@@ -72,12 +72,12 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   initialsContainer: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   initialsText: {
-    color: colors.neutralWhite,
+    color: colors.primary,
     fontWeight: '600',
   },
 });
