@@ -3,10 +3,8 @@ import Constants from 'expo-constants';
 
 import { useNotificationPermission } from '@/src/hooks/useNotificationPermission';
 import { useNotificationStateStore } from '@/src/stores/notificationStateStore';
-import { useJournalSettingsStore } from '@/src/stores/journalSettingsStore';
 import { SettingsToggleRow } from '@/src/components/SettingsToggleRow';
 import { SettingsRow } from '@/src/components/SettingsRow/SettingsRow';
-import { JournalThemePicker } from '@/src/components/JournalThemePicker';
 import { colors } from '@/src/constants/colors';
 
 const appVersion = Constants.expoConfig?.version ?? '0.0.0';
@@ -21,32 +19,22 @@ function SettingsScreen(): React.ReactElement {
   const notificationsEnabled = useNotificationStateStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useNotificationStateStore((s) => s.setNotificationsEnabled);
 
-  const colorScheme = useJournalSettingsStore((s) => s.colorScheme);
-  const setColorScheme = useJournalSettingsStore((s) => s.setColorScheme);
-
   const isToggleOn = isGranted && notificationsEnabled;
 
-  const handleNotificationToggle = async (newValue: boolean) => {
+  const handleNotificationToggle = async (newValue: boolean): Promise<void> => {
     if (!newValue) {
       setNotificationsEnabled(false);
       return;
     }
 
-    // Turning on: re-enable if OS permission already granted, otherwise request it
-    if (isGranted) {
-      setNotificationsEnabled(true);
-      return;
-    }
-
-    const granted = await requestPermission();
-    if (granted) {
+    const hasPermission = isGranted || (await requestPermission());
+    if (hasPermission) {
       setNotificationsEnabled(true);
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Notifications Section */}
       <Text style={styles.sectionHeader}>NOTIFICATIONS</Text>
       <View style={styles.section}>
         <SettingsToggleRow
@@ -63,17 +51,6 @@ function SettingsScreen(): React.ReactElement {
         )}
       </View>
 
-      {/* Appearance Section */}
-      <Text style={styles.sectionHeader}>APPEARANCE</Text>
-      <View style={styles.section}>
-        <JournalThemePicker
-          selectedScheme={colorScheme}
-          onSelectScheme={setColorScheme}
-          testID="journal-theme-picker"
-        />
-      </View>
-
-      {/* About Section */}
       <Text style={styles.sectionHeader}>ABOUT</Text>
       <View style={styles.section}>
         <SettingsRow
