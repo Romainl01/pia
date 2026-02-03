@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SymbolView } from 'expo-symbols';
 
 import { colors } from '@/src/constants/colors';
+import { GradientBackground } from '@/src/components/GradientBackground';
 import { typography } from '@/src/constants/typography';
 import { GlassButton } from '@/src/components/GlassButton';
 import { YearGrid, DaysRemainingCounter } from '@/src/features/journal';
@@ -51,6 +52,7 @@ export default function JournalScreen(): React.ReactElement {
 
   return (
     <View style={styles.root}>
+      <GradientBackground />
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>Journal</Text>
@@ -89,10 +91,10 @@ export default function JournalScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: colors.surfaceLight,
   },
   container: {
     flex: 1,
-    backgroundColor: colors.surfaceLight,
   },
   header: {
     flexDirection: 'row',

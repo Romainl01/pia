@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { GradientBackground } from '@/src/components/GradientBackground';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SymbolView } from 'expo-symbols';
@@ -71,11 +71,7 @@ export default function FriendsScreen(): React.ReactElement {
 
   return (
     <View style={styles.root}>
-      <LinearGradient
-        colors={[colors.primaryGradientStart, colors.surfaceLight]}
-        style={styles.gradient}
-        locations={[0, 0.85]}
-      />
+      <GradientBackground />
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <Text style={styles.title}>Pia</Text>
@@ -116,13 +112,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.surfaceLight,
-  },
-  gradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '45%',
   },
   container: {
     flex: 1,
