@@ -56,7 +56,7 @@ export default function JournalEntryScreen(): React.ReactElement {
     [date, upsertEntry]
   );
 
-  const { justSaved, saveNow } = useAutoSave({
+  const { saveNow } = useAutoSave({
     content,
     onSave: handleSave,
     debounceMs: 500,
@@ -104,11 +104,7 @@ export default function JournalEntryScreen(): React.ReactElement {
           size={40}
           testID="back-button"
         />
-        <GlassDateChip
-          date={date}
-          showSavedIndicator={justSaved}
-          testID="date-chip"
-        />
+        <GlassDateChip date={date} testID="date-chip" />
         {/* Spacer to balance the layout */}
         <View style={styles.spacer} />
       </View>
