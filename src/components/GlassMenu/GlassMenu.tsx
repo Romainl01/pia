@@ -48,13 +48,13 @@ const SCALE_START = 0.85;
 const SPRING_CONFIG = { damping: 15, stiffness: 150 };
 const CLOSE_DURATION = 100;
 
-function getDirectionStyles(
-  direction: 'up' | 'down'
-): { top?: `${number}%`; bottom?: `${number}%`; marginTop?: number; marginBottom?: number } {
-  if (direction === 'down') {
-    return { top: '100%', marginTop: 4 };
-  }
-  return { bottom: '100%', marginBottom: 4 };
+const DIRECTION_STYLES = {
+  down: { top: '100%' as const, marginTop: 4 },
+  up: { bottom: '100%' as const, marginBottom: 4 },
+} as const;
+
+function getDirectionStyles(direction: 'up' | 'down') {
+  return DIRECTION_STYLES[direction];
 }
 
 /**
@@ -179,16 +179,14 @@ export function GlassMenu<T>({
             intensity={80}
             style={styles.menuContainer}
           >
-            {items.map((item, index) => {
+            {items.map((item) => {
               const isSelected = selectedValue === item.value;
-              const isLast = index === items.length - 1;
 
               return (
                 <Pressable
                   key={String(item.value)}
                   style={({ pressed }) => [
                     styles.menuItem,
-                    !isLast && { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.menuItemBorder },
                     pressed && { backgroundColor: colors.menuItemPressed },
                   ]}
                   onPress={() => handleSelect(item.value)}
