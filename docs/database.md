@@ -1,6 +1,6 @@
 # Database Schema
 
-Pia uses Supabase (PostgreSQL) with Row Level Security (RLS) for secure, user-scoped data access.
+Memo uses Supabase (PostgreSQL) with Row Level Security (RLS) for secure, user-scoped data access.
 
 ## Entity Relationship Diagram
 

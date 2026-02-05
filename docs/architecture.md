@@ -1,6 +1,6 @@
 # Architecture Decisions
 
-This document records the key architectural decisions for Pia and the reasoning behind them.
+This document records the key architectural decisions for Memo and the reasoning behind them.
 
 ---
 
@@ -168,7 +168,7 @@ Use PostHog for product analytics.
 
 ### Context
 
-Smart reminders are core to Pia. We need reliable push notifications that work across iOS and Android.
+Smart reminders are core to Memo. We need reliable push notifications that work across iOS and Android.
 
 ### Decision
 

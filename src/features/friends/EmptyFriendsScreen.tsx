@@ -28,7 +28,7 @@ export function EmptyFriendsScreen({ onAddFriend }: EmptyFriendsScreenProps): Re
     <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.surfaceLight }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.neutralDark }]}>Pia</Text>
+        <Text style={[styles.title, { color: colors.neutralDark }]}>Memo</Text>
       </View>
 
       {/* Hero Section */}

@@ -1,6 +1,6 @@
 /**
  * Color tokens from Figma design system
- * @see https://www.figma.com/design/SUKow1jcAFeIcHODQcEy8n/Pia
+ * @see https://www.figma.com/design/SUKow1jcAFeIcHODQcEy8n/Memo
  */
 
 /**

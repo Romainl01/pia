@@ -15,7 +15,7 @@ describe("EmptyFriendsScreen", () => {
         <EmptyFriendsScreen onAddFriend={mockOnAddFriend} />
       );
 
-      expect(getByText("Pia")).toBeTruthy();
+      expect(getByText("Memo")).toBeTruthy();
     });
 
     it("should render the hero title", () => {

@@ -1,6 +1,6 @@
 # Setup Guide
 
-Complete guide to setting up the Pia development environment.
+Complete guide to setting up the Memo development environment.
 
 ## Prerequisites
 
@@ -14,8 +14,8 @@ Complete guide to setting up the Pia development environment.
 
 ```bash
 # Clone the repository
-git clone <repo-url> pia
-cd pia
+git clone <repo-url> memo
+cd memo
 
 # Install dependencies
 npm install

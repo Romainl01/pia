@@ -1,8 +1,8 @@
-# Pia
+# Memo
 
 **Your personal relationship manager.**
 
-In our busy lives, meaningful relationships often take a backseat. Pia helps you stay connected with the people who matter — whether they're family, close friends, colleagues, or a situationship.
+In our busy lives, meaningful relationships often take a backseat. Memo helps you stay connected with the people who matter — whether they're family, close friends, colleagues, or a situationship.
 
 Never forget a birthday, miss a catch-up, or lose track of conversations. Smart reminders keep you engaged, while a unique journaling feature helps you capture shared moments and create a meaningful year-end rewind of your relationships.
 
@@ -10,7 +10,7 @@ Never forget a birthday, miss a catch-up, or lose track of conversations. Smart 
 
 With daily journaling, you can write about your day and mention people to anchor memories with those you share them with — strengthening bonds over time.
 
-Pia helps you reach out at the right moment, with the right words.
+Memo helps you reach out at the right moment, with the right words.
 
 **It's not just about staying in touch — it's about building relationships that last.**
 
@@ -42,7 +42,7 @@ Minimalist, modern, warm. Lovable yet pragmatic.
 ## Project Structure
 
 ```
-pia/
+memo/
 ├── app/                    # Expo Router screens
 ├── components/             # Reusable UI components
 ├── lib/                    # Utilities and configurations

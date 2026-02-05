@@ -1,6 +1,6 @@
 # Feature Specifications
 
-Detailed specifications for Pia's MVP features.
+Detailed specifications for Memo's MVP features.
 
 ---
 

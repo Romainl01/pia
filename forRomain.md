@@ -1,14 +1,14 @@
-# Pia — What I Built and What I Learned
+# Memo — What I Built and What I Learned
 
 > Last updated: February 2026 — Dark mode theming, Journal feature, native component state sync
 
 ---
 
-## What Is Pia?
+## What Is Memo?
 
-Pia is a personal relationship manager. The idea is simple: life gets busy, and the people you care about slip through the cracks. You forget to text back, you miss a birthday, you realize it's been three months since you talked to your best friend.
+Memo is a personal relationship manager. The idea is simple: life gets busy, and the people you care about slip through the cracks. You forget to text back, you miss a birthday, you realize it's been three months since you talked to your best friend.
 
-Pia fixes that. You add the people who matter, tell the app how often you want to reach out, and it nudges you at the right time. One tap logs that you caught up. That's it.
+Memo fixes that. You add the people who matter, tell the app how often you want to reach out, and it nudges you at the right time. One tap logs that you caught up. That's it.
 
 Think of it as a fitness tracker, but for friendships.
 
@@ -266,13 +266,13 @@ Before writing a single component, ask: "What does my data look like?"
 
 ### Make the Common Path Effortless
 
-The most common action in Pia is logging a catch-up. It's one tap. Not "open friend, tap log, confirm, close." One tap on the main list. The toast confirms it happened. Undo is right there if you tapped by accident.
+The most common action in Memo is logging a catch-up. It's one tap. Not "open friend, tap log, confirm, close." One tap on the main list. The toast confirms it happened. Undo is right there if you tapped by accident.
 
 Good engineering isn't just about code — it's about removing friction from the thing users do most.
 
 ### Test the Brain, Not the Face
 
-Most tests in Pia test stores and utilities (the "brain"), not visual output (the "face"). A store test runs in milliseconds. A component rendering test is slower and more brittle. Focus testing effort where the logic is, not where the pixels are.
+Most tests in Memo test stores and utilities (the "brain"), not visual output (the "face"). A store test runs in milliseconds. A component rendering test is slower and more brittle. Focus testing effort where the logic is, not where the pixels are.
 
 ### Naming Is Documentation
 

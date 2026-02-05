@@ -1,6 +1,6 @@
 # Supabase Authentication Plan
 
-This guide walks you through adding Apple Sign-In authentication to Pia using Supabase.
+This guide walks you through adding Apple Sign-In authentication to Memo using Supabase.
 
 **When done, delete this file:** `rm SUPABASE_AUTH_PLAN.md`
 
@@ -36,7 +36,7 @@ This guide walks you through adding Apple Sign-In authentication to Pia using Su
 
 1. Once logged in, click **"New Project"**
 2. Fill in:
-   - **Name**: `pia` (or whatever you like)
+   - **Name**: `memo` (or whatever you like)
    - **Database Password**: Generate a strong one and **save it somewhere safe**
    - **Region**: Choose the closest to you (e.g., `West US` for California)
 3. Click **"Create new project"**
@@ -50,7 +50,7 @@ This guide walks you through adding Apple Sign-In authentication to Pia using Su
    - **Project URL**: Something like `https://abcdefg.supabase.co`
    - **anon public key**: A long string starting with `eyJ...`
 
-4. Open your `.env` file in the Pia project and update:
+4. Open your `.env` file in the Memo project and update:
    ```
    EXPO_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
    EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
@@ -161,7 +161,7 @@ CREATE TRIGGER profiles_updated_at
 2. Click **"Account"** and sign in
 3. Go to **Certificates, Identifiers & Profiles**
 4. Click **Identifiers** in the sidebar
-5. Find your app's identifier (e.g., `com.yourname.pia`) or create one if needed
+5. Find your app's identifier (e.g., `com.yourname.memo`) or create one if needed
 6. Click on it to edit
 7. Scroll down to **Capabilities** and check **"Sign In with Apple"**
 8. Click **Save**
@@ -173,8 +173,8 @@ Supabase needs a "Services ID" to handle the OAuth callback.
 1. Still in **Identifiers**, click the **+** button to create a new identifier
 2. Select **"Services IDs"** and click **Continue**
 3. Fill in:
-   - **Description**: `Pia Auth Service`
-   - **Identifier**: `com.yourname.pia.auth` (add `.auth` to your bundle ID)
+   - **Description**: `Memo Auth Service`
+   - **Identifier**: `com.yourname.memo.auth` (add `.auth` to your bundle ID)
 4. Click **Continue**, then **Register**
 
 ### Step B3: Configure the Services ID
@@ -183,7 +183,7 @@ Supabase needs a "Services ID" to handle the OAuth callback.
 2. Check **"Sign In with Apple"**
 3. Click **Configure** next to it
 4. In the dialog:
-   - **Primary App ID**: Select your main app (e.g., `com.yourname.pia`)
+   - **Primary App ID**: Select your main app (e.g., `com.yourname.memo`)
    - **Domains**: Add your Supabase project domain:
      - `your-project-id.supabase.co` (without https://)
    - **Return URLs**: Add Supabase callback URL:
@@ -196,7 +196,7 @@ Supabase needs a "Services ID" to handle the OAuth callback.
 1. Go to **Keys** in the sidebar
 2. Click the **+** button to create a new key
 3. Fill in:
-   - **Key Name**: `Pia Sign In Key`
+   - **Key Name**: `Memo Sign In Key`
 4. Check **"Sign in with Apple"**
 5. Click **Configure** next to it
 6. Select your **Primary App ID** and click **Save**
@@ -226,7 +226,7 @@ Supabase needs a "Services ID" to handle the OAuth callback.
 
 | Field | Value |
 |-------|-------|
-| **Services ID** | `com.yourname.pia.auth` (the Services ID from Step B2) |
+| **Services ID** | `com.yourname.memo.auth` (the Services ID from Step B2) |
 | **Team ID** | Your 10-character Team ID from Step B5 |
 | **Key ID** | The Key ID from Step B4 |
 | **Private Key** | Open the `.p8` file in a text editor, copy the ENTIRE contents including `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` lines |
