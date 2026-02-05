@@ -24,7 +24,7 @@ const HORIZONTAL_PADDING = 16;
  * Journal tab - year view with 365 colored dots representing each day.
  * The entire year fits on one screen without scrolling.
  */
-export default function JournalScreen(): React.ReactElement {
+function JournalScreen(): React.ReactElement {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -89,6 +89,8 @@ export default function JournalScreen(): React.ReactElement {
   );
 }
 
+export default JournalScreen;
+
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -110,6 +112,7 @@ const styles = StyleSheet.create({
   gridContainer: {
     alignItems: 'center',
     marginTop: 16,
+    paddingHorizontal: 16,
   },
   fab: {
     position: 'absolute',
